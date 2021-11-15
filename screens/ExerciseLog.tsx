@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet } from "react-native";
 
 import {
@@ -9,21 +9,27 @@ import {
   TextInput,
   Button,
 } from "react-native-paper";
+import { getSets, insertSet } from "../data/database";
+import { Exercise, Set } from "../data/types";
 
 export default function App({ route, navigation }: any) {
-  const [data, setData] = React.useState([
-    { time: Date.now().toString(), reps: 10, weight: 100 },
-  ]);
+  const [exerciseSets, setExerciseSets] = React.useState<Set[]>([]);
+
+  const exercise: Exercise = route.params.exercise;
+
+  useEffect(() => {
+    getSets(exercise.id, (sets) => {
+      setExerciseSets(sets);
+    });
+  }, [exercise]);
 
   const [dialogVisible, setDialogVisible] = React.useState(false);
-  const [time, setTime] = React.useState("");
   const [reps, setReps] = React.useState("");
   const [weight, setWeight] = React.useState("");
 
   const showDialog = () => setDialogVisible(true);
   const hideDialog = () => {
     setDialogVisible(false);
-    setTime("");
     setReps("");
     setWeight("");
   };
@@ -37,9 +43,9 @@ export default function App({ route, navigation }: any) {
           <DataTable.Title numeric>Weight</DataTable.Title>
         </DataTable.Header>
 
-        {data.map((item, index) => (
+        {exerciseSets.map((item, index) => (
           <DataTable.Row key={index}>
-            <DataTable.Cell>{item.time}</DataTable.Cell>
+            <DataTable.Cell>{item.timestamp.toString()}</DataTable.Cell>
             <DataTable.Cell numeric>{item.reps}</DataTable.Cell>
             <DataTable.Cell numeric>{item.weight}</DataTable.Cell>
           </DataTable.Row>
@@ -69,14 +75,15 @@ export default function App({ route, navigation }: any) {
             <Button onPress={hideDialog}>Cancel</Button>
             <Button
               onPress={() => {
-                setData([
-                  ...data,
-                  {
-                    time: Date.now().toString(),
-                    reps: parseInt(reps),
-                    weight: parseInt(weight),
-                  },
-                ]);
+                insertSet(
+                  exercise.id,
+                  parseInt(reps),
+                  parseInt(weight),
+                  new Date(),
+                  (sets) => {
+                    setExerciseSets([...exerciseSets, sets]);
+                  }
+                );
                 hideDialog();
               }}
             >

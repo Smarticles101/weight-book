@@ -1,5 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FlatList, StyleSheet } from "react-native";
+
+import { getExercises, insertExercise } from "../data/database";
+
+import type { Exercise } from "../data/types";
 
 import {
   FAB,
@@ -11,14 +15,9 @@ import {
 } from "react-native-paper";
 
 export default function App({ navigation }: any) {
-  const [data, setData] = React.useState([
-    { exercise: "Bench Press" },
-    { exercise: "Squat" },
-    { exercise: "Deadlift" },
-  ]);
+  const [exercises, setExercises] = React.useState<Exercise[]>([]);
 
   const [dialogVisible, setDialogVisible] = React.useState(false);
-
   const [exercise, setExercise] = React.useState("");
 
   const showDialog = () => setDialogVisible(true);
@@ -27,20 +26,26 @@ export default function App({ navigation }: any) {
     setExercise("");
   };
 
+  useEffect(() => {
+    getExercises((exercises) => {
+      setExercises(exercises);
+    });
+  }, []);
+
   return (
     <>
       <FlatList
-        data={data}
+        data={exercises}
         renderItem={({ item }) => (
           <List.Item
-            title={item.exercise}
+            title={item.name}
             onPress={() => {
               // navigate to exercise log
-              navigation.push("Exercise Log", { exercise: item.exercise });
+              navigation.push("Exercise Log", { exercise: item });
             }}
           />
         )}
-        keyExtractor={(item) => item.exercise}
+        keyExtractor={(item) => item.id.toString()}
       />
 
       <FAB style={styles.fab} icon="plus" onPress={showDialog} />
@@ -61,12 +66,9 @@ export default function App({ navigation }: any) {
             <Button onPress={hideDialog}>Cancel</Button>
             <Button
               onPress={() => {
-                setData([
-                  ...data,
-                  {
-                    exercise: exercise,
-                  },
-                ]);
+                insertExercise(exercise, "", (exercise) => {
+                  setExercises([...exercises, exercise]);
+                });
                 hideDialog();
               }}
             >
