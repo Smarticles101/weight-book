@@ -14,7 +14,7 @@ database.transaction((tx) => {
   );
 
   tx.executeSql(
-    "create table if not exists sets (id integer primary key not null, exerciseId integer not null, reps integer, weight integer, timestamp string, foreign key(exerciseId) references exercises(id))"
+    "create table if not exists sets (id integer primary key not null, exerciseId integer not null, reps integer, weight integer, timestamp string, notes string, foreign key(exerciseId) references exercises(id))"
   );
 });
 
@@ -56,6 +56,7 @@ export function getSets(exerciseId: number, callback: GetSetsCallback) {
           reps: set.reps,
           weight: set.weight,
           timestamp: new Date(set.timestamp),
+          notes: set.notes,
         }));
 
         callback(sets);
@@ -69,15 +70,16 @@ export function insertSet(
   reps: number,
   weight: number,
   timestamp: Date,
+  notes: string,
   callback: InsertSetCallback
 ) {
   database.transaction((tx) => {
     tx.executeSql(
-      "insert into sets (exerciseId, reps, weight, timestamp) values (?, ?, ?, ?)",
-      [exerciseId, reps, weight, timestamp.toISOString()],
+      "insert into sets (exerciseId, reps, weight, timestamp, notes) values (?, ?, ?, ?, ?)",
+      [exerciseId, reps, weight, timestamp.toISOString(), notes],
       (_, { insertId }) => {
         if (insertId) {
-          callback({ id: insertId, exerciseId, reps, weight, timestamp });
+          callback({ id: insertId, exerciseId, reps, weight, timestamp, notes });
         }
       }
     );

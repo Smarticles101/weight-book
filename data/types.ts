@@ -12,6 +12,7 @@ export type Set = {
     reps: number;
     weight: number;
     timestamp: Date;
+    notes: string;
 }
 export type GetSetsCallback = (sets: Set[]) => void;
 export type InsertSetCallback = (set: Set) => void;
