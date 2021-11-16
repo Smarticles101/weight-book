@@ -8,11 +8,10 @@ import {
   Dialog,
   TextInput,
   Button,
-  Paragraph,
   List,
-  Caption,
+  Menu,
 } from "react-native-paper";
-import { getSets, insertSet } from "../data/database";
+import { deleteSet, getSets, insertSet, updateSet } from "../data/database";
 import { Exercise, Set } from "../data/types";
 
 export default function App({ route, navigation }: any) {
@@ -32,22 +31,43 @@ export default function App({ route, navigation }: any) {
   const [notes, setNotes] = React.useState("");
 
   const showDialog = () => {
-    // autofill dialog reps, weight, and notes to the last set
-    if (exerciseSets.length > 0) {
+
+    if (selectedEditingSet) {
+      // autofill selected set for editing
+      setReps(selectedEditingSet.reps.toString());
+      setWeight(selectedEditingSet.weight.toString());
+      setNotes(selectedEditingSet.notes);
+    } else if (exerciseSets.length > 0) {
+      // autofill last set for adding
       const lastSet = exerciseSets[exerciseSets.length - 1];
+
       setReps(lastSet.reps.toString());
       setWeight(lastSet.weight.toString());
       setNotes(lastSet.notes);
     }
+
     setDialogVisible(true);
   };
 
   const hideDialog = () => {
+    // clear dialog fields and hide
     setDialogVisible(false);
     setReps("");
     setWeight("");
     setNotes("");
+    setSelectedEditingSet(undefined);
   };
+
+  const [menuVisible, setMenuVisible] = React.useState(false);
+  const [menuCoordinates, setMenuCoordinates] = React.useState({
+    x: 0,
+    y: 0,
+  });
+
+  const showMenu = () => setMenuVisible(true);
+  const hideMenu = () => setMenuVisible(false);
+
+  const [selectedEditingSet, setSelectedEditingSet] = React.useState<Set>();
 
   return (
     <>
@@ -64,10 +84,22 @@ export default function App({ route, navigation }: any) {
           renderItem={({ item }) => (
             <>
               <List.Item
-                title={() => <DataTable.Cell>{item.timestamp.toString()}</DataTable.Cell>}
+                title={() => (
+                  <DataTable.Cell>{item.timestamp.toString()}</DataTable.Cell>
+                )}
                 descriptionEllipsizeMode="middle"
                 descriptionNumberOfLines={1}
                 description={item.notes}
+                onPress={() => {
+                  // TODO: show drawer with set info, or just another screen
+                }}
+                onLongPress={(event) => {
+                  const x = event.nativeEvent.pageX;
+                  const y = event.nativeEvent.pageY;
+                  setMenuCoordinates({ x, y });
+                  setSelectedEditingSet(item);
+                  showMenu();
+                }}
                 right={() => (
                   <>
                     <DataTable.Cell numeric>{item.reps}</DataTable.Cell>
@@ -107,26 +139,84 @@ export default function App({ route, navigation }: any) {
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={hideDialog}>Cancel</Button>
-            <Button
-              onPress={() => {
-                insertSet(
-                  exercise.id,
-                  parseInt(reps),
-                  parseInt(weight),
-                  new Date(),
-                  notes,
-                  (sets) => {
-                    setExerciseSets([...exerciseSets, sets]);
-                  }
-                );
-                hideDialog();
-              }}
-            >
-              Add
-            </Button>
+            {!selectedEditingSet ? (
+              <Button
+                onPress={() => {
+                  insertSet(
+                    exercise.id,
+                    parseInt(reps),
+                    parseInt(weight),
+                    new Date(),
+                    notes,
+                    (sets) => {
+                      setExerciseSets([...exerciseSets, sets]);
+                    }
+                  );
+                  hideDialog();
+                }}
+              >
+                Add
+              </Button>
+            ) : (
+              <Button
+                onPress={() => {
+                  updateSet(
+                    selectedEditingSet.id,
+                    parseInt(reps),
+                    parseInt(weight),
+                    notes,
+                    () => {
+                      setExerciseSets(
+                        exerciseSets.map((set) =>
+                          set.id === selectedEditingSet.id
+                            ? {
+                                ...set,
+                                reps: parseInt(reps),
+                                weight: parseInt(weight),
+                                notes,
+                              }
+                            : set
+                        )
+                      );
+                    }
+                  );
+                  hideDialog();
+                }}
+              >
+                Update
+              </Button>
+            )}
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      <Menu visible={menuVisible} onDismiss={hideMenu} anchor={menuCoordinates}>
+        <Menu.Item
+          onPress={() => {
+            if (selectedEditingSet) {
+              hideMenu();
+              showDialog();
+            }
+          }}
+          title="Edit"
+          icon="pencil"
+        />
+        <Menu.Item
+          onPress={() => {
+            if (selectedEditingSet) {
+              deleteSet(selectedEditingSet.id, () => {
+                setExerciseSets(
+                  exerciseSets.filter((set) => set.id !== selectedEditingSet.id)
+                );
+                setSelectedEditingSet(undefined);
+                hideMenu();
+              });
+            }
+          }}
+          title="Delete"
+          icon="delete"
+        />
+      </Menu>
     </>
   );
 }

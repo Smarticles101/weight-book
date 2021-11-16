@@ -85,3 +85,23 @@ export function insertSet(
     );
   });
 }
+
+export function updateSet(setId: number, reps: number, weight: number, notes: string, callback: Function) {
+  database.transaction((tx) => {
+    tx.executeSql(
+      "update sets set reps = ?, weight = ?, notes = ? where id is (?)",
+      [reps, weight, notes, setId],
+      (_, { rows }) => {
+        callback();
+      }
+    );
+  });
+}
+
+export function deleteSet(setId: number, callback: Function) {
+  database.transaction((tx) => {
+    tx.executeSql("delete from sets where id is (?)", [setId], (_, { rows }) => {
+      callback();
+    });
+  });
+}
