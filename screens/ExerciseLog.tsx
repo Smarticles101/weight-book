@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { FlatList, SectionList, StyleSheet } from "react-native";
+import { Keyboard, ScrollView, SectionList, StyleSheet } from "react-native";
 
 import {
   DataTable,
@@ -13,8 +13,10 @@ import {
 } from "react-native-paper";
 import { deleteSet, getSets, insertSet, updateSet } from "../data/database";
 import { Exercise, Set } from "../data/types";
+import AddSet from "./AddSet";
+import EditSet from "./EditSet";
 
-export default function App({ route, navigation }: any) {
+export default function ExerciseLog({ route, navigation }: any) {
   const [exerciseSets, setExerciseSets] = React.useState<Set[]>([]);
   const [exerciseSetsByDay, setExerciseSetsByDay] = React.useState<
     { day: String; data: Set[] }[]
@@ -57,48 +59,33 @@ export default function App({ route, navigation }: any) {
     setExerciseSetsByDay(rows);
   }, [exerciseSets]);
 
-  const [dialogVisible, setDialogVisible] = React.useState(false);
+  const [addDialogVisible, setAddDialogVisible] = React.useState(false);
   const [reps, setReps] = React.useState("");
   const [weight, setWeight] = React.useState("");
   const [notes, setNotes] = React.useState("");
 
-  const showDialog = () => {
-    if (selectedEditingSet) {
-      // autofill selected set for editing
-      setReps(selectedEditingSet.reps.toString());
-      setWeight(selectedEditingSet.weight.toString());
-      setNotes(selectedEditingSet.notes);
-    } else if (exerciseSets.length > 0) {
-      // autofill last set for adding
-      const lastSet = exerciseSets[exerciseSets.length - 1];
+  const showAddDialog = () => {
+    if (exerciseSets.length > 0) {
+      // autofill most recent set for adding
+      const lastSet = exerciseSets[0];
 
       setReps(lastSet.reps.toString());
       setWeight(lastSet.weight.toString());
       setNotes(lastSet.notes);
     }
 
-    setDialogVisible(true);
+    setAddDialogVisible(true);
   };
 
   const hideDialog = () => {
-    // clear dialog fields and hide
-    setDialogVisible(false);
+    setSelectedSet(undefined);
+    setAddDialogVisible(false);
     setReps("");
     setWeight("");
     setNotes("");
-    setSelectedEditingSet(undefined);
   };
 
-  const [menuVisible, setMenuVisible] = React.useState(false);
-  const [menuCoordinates, setMenuCoordinates] = React.useState({
-    x: 0,
-    y: 0,
-  });
-
-  const showMenu = () => setMenuVisible(true);
-  const hideMenu = () => setMenuVisible(false);
-
-  const [selectedEditingSet, setSelectedEditingSet] = React.useState<Set>();
+  const [selectedSet, setSelectedSet] = React.useState<Set>();
 
   return (
     <>
@@ -129,14 +116,10 @@ export default function App({ route, navigation }: any) {
                 descriptionNumberOfLines={1}
                 description={item.notes}
                 onPress={() => {
-                  // TODO: show drawer with set info, or just another screen
-                }}
-                onLongPress={(event) => {
-                  const x = event.nativeEvent.pageX;
-                  const y = event.nativeEvent.pageY;
-                  setMenuCoordinates({ x, y });
-                  setSelectedEditingSet(item);
-                  showMenu();
+                  setSelectedSet(item);
+                  setReps(item.reps.toString());
+                  setWeight(item.weight.toString());
+                  setNotes(item.notes);
                 }}
                 right={() => (
                   <>
@@ -150,111 +133,58 @@ export default function App({ route, navigation }: any) {
         />
       </DataTable>
 
-      <FAB style={styles.fab} icon="plus" onPress={showDialog} />
+      <FAB style={styles.fab} icon="plus" onPress={showAddDialog} />
 
-      <Portal>
-        <Dialog visible={dialogVisible} onDismiss={hideDialog}>
-          <Dialog.Title onPressIn onPressOut>
-            Add new set
-          </Dialog.Title>
-          <Dialog.Content>
-            <TextInput
-              label="Reps"
-              value={reps}
-              onChangeText={(sets) => setReps(sets)}
-            />
-            <TextInput
-              label="Weight"
-              value={weight}
-              onChangeText={(reps) => setWeight(reps)}
-            />
-            <TextInput
-              multiline
-              label="Notes"
-              value={notes}
-              onChangeText={(notes) => setNotes(notes)}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={hideDialog}>Cancel</Button>
-            {!selectedEditingSet ? (
-              <Button
-                onPress={() => {
-                  insertSet(
-                    exercise.id,
-                    parseInt(reps),
-                    parseInt(weight),
-                    new Date(),
-                    notes,
-                    (sets) => {
-                      setExerciseSets([...exerciseSets, sets]);
-                    }
-                  );
-                  hideDialog();
-                }}
-              >
-                Add
-              </Button>
-            ) : (
-              <Button
-                onPress={() => {
-                  updateSet(
-                    selectedEditingSet.id,
-                    parseInt(reps),
-                    parseInt(weight),
-                    notes,
-                    () => {
-                      setExerciseSets(
-                        exerciseSets.map((set) =>
-                          set.id === selectedEditingSet.id
-                            ? {
-                                ...set,
-                                reps: parseInt(reps),
-                                weight: parseInt(weight),
-                                notes,
-                              }
-                            : set
-                        )
-                      );
-                    }
-                  );
-                  hideDialog();
-                }}
-              >
-                Update
-              </Button>
-            )}
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      <AddSet
+        startReps={reps}
+        startWeight={weight}
+        startNotes={notes}
+        onDismiss={hideDialog}
+        visible={addDialogVisible}
+        onSubmit={(reps: number, weight: number, notes: string) => {
+          insertSet(exercise.id, reps, weight, new Date(), notes, (sets) => {
+            setExerciseSets([...exerciseSets, sets]);
+          });
+          hideDialog();
+        }}
+      />
 
-      <Menu visible={menuVisible} onDismiss={hideMenu} anchor={menuCoordinates}>
-        <Menu.Item
-          onPress={() => {
-            if (selectedEditingSet) {
-              hideMenu();
-              showDialog();
-            }
-          }}
-          title="Edit"
-          icon="pencil"
-        />
-        <Menu.Item
-          onPress={() => {
-            if (selectedEditingSet) {
-              deleteSet(selectedEditingSet.id, () => {
-                setExerciseSets(
-                  exerciseSets.filter((set) => set.id !== selectedEditingSet.id)
-                );
-                setSelectedEditingSet(undefined);
-                hideMenu();
-              });
-            }
-          }}
-          title="Delete"
-          icon="delete"
-        />
-      </Menu>
+      <EditSet
+        startReps={reps}
+        startWeight={weight}
+        startNotes={notes}
+        onDismiss={hideDialog}
+        visible={selectedSet !== undefined}
+        onDelete={() => {
+          if (selectedSet) {
+            deleteSet(selectedSet.id, () => {
+              setExerciseSets(
+                exerciseSets.filter((set) => set.id !== selectedSet.id)
+              );
+              hideDialog();
+            });
+          }
+        }}
+        onSubmit={(reps: number, weight: number, notes: string) => {
+          if (selectedSet) {
+            updateSet(selectedSet.id, reps, weight, notes, () => {
+              setExerciseSets(
+                exerciseSets.map((set) =>
+                  set.id === selectedSet.id
+                    ? {
+                        ...set,
+                        reps,
+                        weight,
+                        notes,
+                      }
+                    : set
+                )
+              );
+            });
+          }
+          hideDialog();
+        }}
+      />
     </>
   );
 }

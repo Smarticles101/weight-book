@@ -14,7 +14,7 @@ import {
   List,
 } from "react-native-paper";
 
-export default function App({ navigation }: any) {
+export default function Exercises({ navigation }: any) {
   const [exercises, setExercises] = React.useState<Exercise[]>([]);
 
   const [dialogVisible, setDialogVisible] = React.useState(false);
