@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, SectionList, StyleSheet } from "react-native";
 
 import {
   DataTable,
@@ -16,6 +16,9 @@ import { Exercise, Set } from "../data/types";
 
 export default function App({ route, navigation }: any) {
   const [exerciseSets, setExerciseSets] = React.useState<Set[]>([]);
+  const [exerciseSetsByDay, setExerciseSetsByDay] = React.useState<
+    { day: String; data: Set[] }[]
+  >([]);
 
   const exercise: Exercise = route.params.exercise;
 
@@ -25,13 +28,41 @@ export default function App({ route, navigation }: any) {
     });
   }, [exercise]);
 
+  useEffect(() => {
+    let setsGroupedByDay = exerciseSets
+      .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf())
+      .reduce(
+        (acc: { [key: string]: Set[] }, set) => ({
+          ...acc,
+          [set.timestamp.toLocaleDateString()]: [
+            ...(acc[set.timestamp.toLocaleDateString()] || []),
+            set,
+          ],
+        }),
+        {}
+      );
+
+    let days = Object.keys(setsGroupedByDay);
+    days.sort();
+    days.reverse();
+
+    let rows = days.map((day) => {
+      let sets = setsGroupedByDay[day];
+      return {
+        day,
+        data: sets,
+      };
+    });
+
+    setExerciseSetsByDay(rows);
+  }, [exerciseSets]);
+
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const [reps, setReps] = React.useState("");
   const [weight, setWeight] = React.useState("");
   const [notes, setNotes] = React.useState("");
 
   const showDialog = () => {
-
     if (selectedEditingSet) {
       // autofill selected set for editing
       setReps(selectedEditingSet.reps.toString());
@@ -77,15 +108,22 @@ export default function App({ route, navigation }: any) {
           <DataTable.Title numeric>Reps</DataTable.Title>
           <DataTable.Title numeric>Weight</DataTable.Title>
         </DataTable.Header>
-        <FlatList
+        <SectionList
           style={styles.list}
-          data={exerciseSets}
+          sections={exerciseSetsByDay}
           keyExtractor={(item) => item.id.toString()}
+          renderSectionHeader={({ section: { day } }) => (
+            <List.Subheader onPressIn onPressOut>
+              {day}
+            </List.Subheader>
+          )}
           renderItem={({ item }) => (
             <>
               <List.Item
                 title={() => (
-                  <DataTable.Cell>{item.timestamp.toString()}</DataTable.Cell>
+                  <DataTable.Cell>
+                    {item.timestamp.toLocaleTimeString()}
+                  </DataTable.Cell>
                 )}
                 descriptionEllipsizeMode="middle"
                 descriptionNumberOfLines={1}
