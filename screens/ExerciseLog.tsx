@@ -1,20 +1,9 @@
 import React, { useEffect } from "react";
-import { Keyboard, ScrollView, SectionList, StyleSheet } from "react-native";
+import { SectionList, StyleSheet } from "react-native";
 
-import {
-  DataTable,
-  FAB,
-  Portal,
-  Dialog,
-  TextInput,
-  Button,
-  List,
-  Menu,
-} from "react-native-paper";
-import { deleteSet, getSets, insertSet, updateSet } from "../data/database";
+import { DataTable, FAB, List } from "react-native-paper";
+import { getSets } from "../data/database";
 import { Exercise, Set } from "../data/types";
-import AddSet from "./AddSet";
-import EditSet from "./EditSet";
 
 export default function ExerciseLog({ route, navigation }: any) {
   const [exerciseSets, setExerciseSets] = React.useState<Set[]>([]);
@@ -59,33 +48,52 @@ export default function ExerciseLog({ route, navigation }: any) {
     setExerciseSetsByDay(rows);
   }, [exerciseSets]);
 
-  const [addDialogVisible, setAddDialogVisible] = React.useState(false);
-  const [reps, setReps] = React.useState("");
-  const [weight, setWeight] = React.useState("");
-  const [notes, setNotes] = React.useState("");
+  const addSet = () => {
+    let reps, weight, notes;
 
-  const showAddDialog = () => {
     if (exerciseSets.length > 0) {
       // autofill most recent set for adding
       const lastSet = exerciseSets[0];
 
-      setReps(lastSet.reps.toString());
-      setWeight(lastSet.weight.toString());
-      setNotes(lastSet.notes);
+      reps = lastSet.reps.toString();
+      weight = lastSet.weight.toString();
+      notes = lastSet.notes;
     }
 
-    setAddDialogVisible(true);
+    navigation.navigate("Add Set", {
+      exerciseId: exercise.id,
+      startReps: reps,
+      startWeight: weight,
+      startNotes: notes,
+      onSubmit: (set: Set) => {
+        setExerciseSets([...exerciseSets, set]);
+      },
+    });
   };
 
-  const hideDialog = () => {
-    setSelectedSet(undefined);
-    setAddDialogVisible(false);
-    setReps("");
-    setWeight("");
-    setNotes("");
+  const editSet = (editSet: Set) => {
+    navigation.navigate("Edit Set", {
+      setId: editSet.id,
+      startReps: editSet.reps.toString(),
+      startWeight: editSet.weight.toString(),
+      startNotes: editSet.notes,
+      onSubmit: (updatedSet: Set) => {
+        setExerciseSets(
+          exerciseSets.map((set) =>
+            set.id === updatedSet.id
+              ? {
+                  ...set,
+                  ...updatedSet,
+                }
+              : set
+          )
+        );
+      },
+      onDelete: () => {
+        setExerciseSets(exerciseSets.filter((set) => set.id !== editSet.id));
+      },
+    });
   };
-
-  const [selectedSet, setSelectedSet] = React.useState<Set>();
 
   return (
     <>
@@ -115,12 +123,7 @@ export default function ExerciseLog({ route, navigation }: any) {
                 descriptionEllipsizeMode="middle"
                 descriptionNumberOfLines={1}
                 description={item.notes}
-                onPress={() => {
-                  setSelectedSet(item);
-                  setReps(item.reps.toString());
-                  setWeight(item.weight.toString());
-                  setNotes(item.notes);
-                }}
+                onPress={() => editSet(item)}
                 right={() => (
                   <>
                     <DataTable.Cell numeric>{item.reps}</DataTable.Cell>
@@ -133,58 +136,7 @@ export default function ExerciseLog({ route, navigation }: any) {
         />
       </DataTable>
 
-      <FAB style={styles.fab} icon="plus" onPress={showAddDialog} />
-
-      <AddSet
-        startReps={reps}
-        startWeight={weight}
-        startNotes={notes}
-        onDismiss={hideDialog}
-        visible={addDialogVisible}
-        onSubmit={(reps: number, weight: number, notes: string) => {
-          insertSet(exercise.id, reps, weight, new Date(), notes, (sets) => {
-            setExerciseSets([...exerciseSets, sets]);
-          });
-          hideDialog();
-        }}
-      />
-
-      <EditSet
-        startReps={reps}
-        startWeight={weight}
-        startNotes={notes}
-        onDismiss={hideDialog}
-        visible={selectedSet !== undefined}
-        onDelete={() => {
-          if (selectedSet) {
-            deleteSet(selectedSet.id, () => {
-              setExerciseSets(
-                exerciseSets.filter((set) => set.id !== selectedSet.id)
-              );
-              hideDialog();
-            });
-          }
-        }}
-        onSubmit={(reps: number, weight: number, notes: string) => {
-          if (selectedSet) {
-            updateSet(selectedSet.id, reps, weight, notes, () => {
-              setExerciseSets(
-                exerciseSets.map((set) =>
-                  set.id === selectedSet.id
-                    ? {
-                        ...set,
-                        reps,
-                        weight,
-                        notes,
-                      }
-                    : set
-                )
-              );
-            });
-          }
-          hideDialog();
-        }}
-      />
+      <FAB style={styles.fab} icon="plus" onPress={addSet} />
     </>
   );
 }

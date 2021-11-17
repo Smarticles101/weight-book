@@ -92,7 +92,7 @@ export function updateSet(setId: number, reps: number, weight: number, notes: st
       "update sets set reps = ?, weight = ?, notes = ? where id is (?)",
       [reps, weight, notes, setId],
       (_, { rows }) => {
-        callback();
+        callback({ id: setId, reps, weight, notes });
       }
     );
   });

@@ -12,6 +12,8 @@ import { StatusBar } from "expo-status-bar";
 
 import ExercisesScreen from "./screens/Exercises";
 import ExerciseLog from "./screens/ExerciseLog";
+import AddSet from "./screens/AddSet";
+import EditSet from "./screens/EditSet";
 
 const Stack = createNativeStackNavigator();
 
@@ -56,8 +58,14 @@ function App() {
             ),
           }}
         >
-          <Stack.Screen name="Exercises" component={ExercisesScreen} />
-          <Stack.Screen name="Exercise Log" component={ExerciseLog} />
+          <Stack.Group>
+            <Stack.Screen name="Exercises" component={ExercisesScreen} />
+            <Stack.Screen name="Exercise Log" component={ExerciseLog} />
+          </Stack.Group>
+          <Stack.Group screenOptions={{ presentation: 'modal' }}>
+            <Stack.Screen name="Add Set" component={AddSet} />
+            <Stack.Screen name="Edit Set" component={EditSet} />
+          </Stack.Group>
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
