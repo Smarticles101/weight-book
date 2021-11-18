@@ -1,18 +1,30 @@
 export type Exercise = {
-    id: number;
-    name: string;
-    description: string;
+  name: string;
+  description: string;
 };
-export type GetExercisesCallback = (exercises: Exercise[]) => void;
-export type InsertExerciseCallback = (exercise: Exercise) => void;
 
-export type Set = {
-    id: number;
-    exerciseId: number; 
-    reps: number;
-    weight: number;
-    timestamp: Date;
-    notes: string;
-}
-export type GetSetsCallback = (sets: Set[]) => void;
-export type InsertSetCallback = (set: Set) => void;
+// Exercise with an id
+export type IdExercise = Exercise & {
+  id: number;
+};
+
+export type GetExercisesCallback = (exercises: IdExercise[]) => void;
+export type InsertExerciseCallback = (exercise: IdExercise) => void;
+
+export type ExerciseSet = {
+  reps: number;
+  weight: number;
+  timestamp: Date;
+  notes: string;
+};
+
+// ExerciseSet with an id
+export type IdExerciseSet = ExerciseSet & {
+  id: number;
+  exerciseId?: number;
+};
+
+export type GetSetsCallback = (sets: IdExerciseSet[]) => void;
+export type InsertSetCallback = (set: IdExerciseSet) => void;
+export type UpdateSetCallback = (set: IdExerciseSet) => void;
+export type DeleteSetCallback = (setId: number) => void;

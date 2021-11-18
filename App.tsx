@@ -14,6 +14,7 @@ import ExercisesScreen from "./screens/Exercises";
 import ExerciseLog from "./screens/ExerciseLog";
 import AddSet from "./screens/AddSet";
 import EditSet from "./screens/EditSet";
+import ExerciseSetsProvider from "./data/exerciseSetsProvider";
 
 const Stack = createNativeStackNavigator();
 
@@ -42,33 +43,35 @@ const Header = ({
 //  - review this https://reactnavigation.org/docs/typescript/
 function App() {
   return (
-    <PaperProvider>
-      <StatusBar style="auto" />
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Exercises"
-          screenOptions={{
-            header: ({ navigation, route, options, back }) => (
-              <Header
-                navigation={navigation}
-                route={route}
-                options={options}
-                back={back}
-              />
-            ),
-          }}
-        >
-          <Stack.Group>
-            <Stack.Screen name="Exercises" component={ExercisesScreen} />
-            <Stack.Screen name="Exercise Log" component={ExerciseLog} />
-          </Stack.Group>
-          <Stack.Group screenOptions={{ presentation: 'modal' }}>
-            <Stack.Screen name="Add Set" component={AddSet} />
-            <Stack.Screen name="Edit Set" component={EditSet} />
-          </Stack.Group>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <ExerciseSetsProvider>
+      <PaperProvider>
+        <StatusBar style="auto" />
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Exercises"
+            screenOptions={{
+              header: ({ navigation, route, options, back }) => (
+                <Header
+                  navigation={navigation}
+                  route={route}
+                  options={options}
+                  back={back}
+                />
+              ),
+            }}
+          >
+            <Stack.Group>
+              <Stack.Screen name="Exercises" component={ExercisesScreen} />
+              <Stack.Screen name="Exercise Log" component={ExerciseLog} />
+            </Stack.Group>
+            <Stack.Group screenOptions={{ presentation: "modal" }}>
+              <Stack.Screen name="Add Set" component={AddSet} />
+              <Stack.Screen name="Edit Set" component={EditSet} />
+            </Stack.Group>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </ExerciseSetsProvider>
   );
 }
 

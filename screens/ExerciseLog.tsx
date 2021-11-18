@@ -3,27 +3,21 @@ import { SectionList, StyleSheet } from "react-native";
 
 import { DataTable, FAB, List } from "react-native-paper";
 import { getSets } from "../data/database";
-import { Exercise, Set } from "../data/types";
+import { useExerciseSets } from "../data/exerciseSetsProvider";
+import { IdExercise, IdExerciseSet } from "../data/types";
 
 export default function ExerciseLog({ route, navigation }: any) {
-  const [exerciseSets, setExerciseSets] = React.useState<Set[]>([]);
   const [exerciseSetsByDay, setExerciseSetsByDay] = React.useState<
-    { day: String; data: Set[] }[]
+    { day: String; data: IdExerciseSet[] }[]
   >([]);
 
-  const exercise: Exercise = route.params.exercise;
-
-  useEffect(() => {
-    getSets(exercise.id, (sets) => {
-      setExerciseSets(sets);
-    });
-  }, [exercise]);
+  const { exerciseSets } = useExerciseSets();
 
   useEffect(() => {
     let setsGroupedByDay = exerciseSets
       .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf())
       .reduce(
-        (acc: { [key: string]: Set[] }, set) => ({
+        (acc: { [key: string]: IdExerciseSet[] }, set) => ({
           ...acc,
           [set.timestamp.toLocaleDateString()]: [
             ...(acc[set.timestamp.toLocaleDateString()] || []),
@@ -61,37 +55,19 @@ export default function ExerciseLog({ route, navigation }: any) {
     }
 
     navigation.navigate("Add Set", {
-      exerciseId: exercise.id,
       startReps: reps,
       startWeight: weight,
       startNotes: notes,
-      onSubmit: (set: Set) => {
-        setExerciseSets([...exerciseSets, set]);
-      },
     });
   };
 
-  const editSet = (editSet: Set) => {
+  const editSet = (editSet: IdExerciseSet) => {
     navigation.navigate("Edit Set", {
       setId: editSet.id,
       startReps: editSet.reps.toString(),
       startWeight: editSet.weight.toString(),
       startNotes: editSet.notes,
-      onSubmit: (updatedSet: Set) => {
-        setExerciseSets(
-          exerciseSets.map((set) =>
-            set.id === updatedSet.id
-              ? {
-                  ...set,
-                  ...updatedSet,
-                }
-              : set
-          )
-        );
-      },
-      onDelete: () => {
-        setExerciseSets(exerciseSets.filter((set) => set.id !== editSet.id));
-      },
+      startTimestamp: editSet.timestamp.toISOString(),
     });
   };
 

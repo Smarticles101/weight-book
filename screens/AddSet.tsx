@@ -1,14 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 import { insertSet } from "../data/database";
+import { useExerciseSets } from "../data/exerciseSetsProvider";
 
 export default function AddSet({ navigation, route }: any) {
   const [reps, setReps] = React.useState("");
   const [weight, setWeight] = React.useState("");
   const [notes, setNotes] = React.useState("");
 
-  const { exerciseId, startReps, startWeight, startNotes, onSubmit } =
-    route.params;
+  const { startReps, startWeight, startNotes } = route.params;
+  const { addSet } = useExerciseSets();
 
   useEffect(() => {
     setReps(startReps);
@@ -25,39 +26,26 @@ export default function AddSet({ navigation, route }: any) {
   };
 
   const submit = () => {
-    insertSet(
-      exerciseId,
-      parseInt(reps),
-      parseInt(weight),
-      new Date(),
-      notes,
-      (set) => {
-        if (onSubmit) {
-          onSubmit(set);
-        }
-        close();
-      }
-    );
+    addSet({ reps: parseInt(reps), weight: parseInt(weight), notes, timestamp: new Date() });
+    close();
   };
 
-  return (
+  return useMemo(() => (
     <>
       {/* @ts-ignore */}
-      <Dialog.Title>
-        Add new set
-      </Dialog.Title>
+      <Dialog.Title>Add new set</Dialog.Title>
       <Dialog.Content>
         <TextInput
           label="Reps"
           keyboardType="decimal-pad"
           value={reps}
-          onChangeText={(sets) => setReps(sets)}
+          onChangeText={(reps) => setReps(reps)}
         />
         <TextInput
           label="Weight"
           keyboardType="decimal-pad"
           value={weight}
-          onChangeText={(reps) => setWeight(reps)}
+          onChangeText={(weight) => setWeight(weight)}
         />
         <TextInput
           multiline
@@ -71,5 +59,5 @@ export default function AddSet({ navigation, route }: any) {
         <Button onPress={submit}>Add</Button>
       </Dialog.Actions>
     </>
-  );
+  ), [reps, weight, notes]);
 }

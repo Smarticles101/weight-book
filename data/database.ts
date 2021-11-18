@@ -1,9 +1,13 @@
 import * as SQLite from "expo-sqlite";
 import {
+  Exercise,
+  ExerciseSet,
   GetExercisesCallback,
   GetSetsCallback,
+  IdExerciseSet,
   InsertExerciseCallback,
   InsertSetCallback,
+  UpdateSetCallback,
 } from "./types";
 
 let database = SQLite.openDatabase("weightbook");
@@ -27,8 +31,7 @@ export function getExercises(callback: GetExercisesCallback) {
 }
 
 export function insertExercise(
-  name: string,
-  description: string,
+  { name, description }: Exercise,
   callback: InsertExerciseCallback
 ) {
   database.transaction((tx) => {
@@ -67,10 +70,7 @@ export function getSets(exerciseId: number, callback: GetSetsCallback) {
 
 export function insertSet(
   exerciseId: number,
-  reps: number,
-  weight: number,
-  timestamp: Date,
-  notes: string,
+  { reps, weight, timestamp, notes }: ExerciseSet,
   callback: InsertSetCallback
 ) {
   database.transaction((tx) => {
@@ -79,20 +79,30 @@ export function insertSet(
       [exerciseId, reps, weight, timestamp.toISOString(), notes],
       (_, { insertId }) => {
         if (insertId) {
-          callback({ id: insertId, exerciseId, reps, weight, timestamp, notes });
+          callback({
+            id: insertId,
+            exerciseId,
+            reps,
+            weight,
+            timestamp,
+            notes,
+          });
         }
       }
     );
   });
 }
 
-export function updateSet(setId: number, reps: number, weight: number, notes: string, callback: Function) {
+export function updateSet(
+  { id, reps, weight, notes, timestamp, exerciseId }: IdExerciseSet,
+  callback: UpdateSetCallback
+) {
   database.transaction((tx) => {
     tx.executeSql(
-      "update sets set reps = ?, weight = ?, notes = ? where id is (?)",
-      [reps, weight, notes, setId],
+      "update sets set reps = ?, weight = ?, notes = ?, timestamp = ? where id is (?)",
+      [reps, weight, notes, timestamp.valueOf(), id],
       (_, { rows }) => {
-        callback({ id: setId, reps, weight, notes });
+        callback({ id, reps, weight, notes, timestamp, exerciseId });
       }
     );
   });
@@ -100,8 +110,12 @@ export function updateSet(setId: number, reps: number, weight: number, notes: st
 
 export function deleteSet(setId: number, callback: Function) {
   database.transaction((tx) => {
-    tx.executeSql("delete from sets where id is (?)", [setId], (_, { rows }) => {
-      callback();
-    });
+    tx.executeSql(
+      "delete from sets where id is (?)",
+      [setId],
+      (_, { rows }) => {
+        callback(setId);
+      }
+    );
   });
 }

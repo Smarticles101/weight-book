@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { FlatList, StyleSheet } from "react-native";
 
 import { getExercises, insertExercise } from "../data/database";
 
-import type { Exercise } from "../data/types";
+import type { IdExercise } from "../data/types";
 
 import {
   FAB,
@@ -13,9 +13,10 @@ import {
   Button,
   List,
 } from "react-native-paper";
+import { useExerciseSets } from "../data/exerciseSetsProvider";
 
 export default function Exercises({ navigation }: any) {
-  const [exercises, setExercises] = React.useState<Exercise[]>([]);
+  const [exercises, setExercises] = React.useState<IdExercise[]>([]);
 
   const [dialogVisible, setDialogVisible] = React.useState(false);
   const [exercise, setExercise] = React.useState("");
@@ -26,13 +27,15 @@ export default function Exercises({ navigation }: any) {
     setExercise("");
   };
 
+  const { useExercise } = useExerciseSets();
+
   useEffect(() => {
     getExercises((exercises) => {
       setExercises(exercises);
     });
   }, []);
 
-  return (
+  return useMemo(() => (
     <>
       <FlatList
         data={exercises}
@@ -40,8 +43,8 @@ export default function Exercises({ navigation }: any) {
           <List.Item
             title={item.name}
             onPress={() => {
-              // navigate to exercise log
-              navigation.push("Exercise Log", { exercise: item });
+              useExercise(item.id);
+              navigation.push("Exercise Log");
             }}
           />
         )}
@@ -66,7 +69,7 @@ export default function Exercises({ navigation }: any) {
             <Button onPress={hideDialog}>Cancel</Button>
             <Button
               onPress={() => {
-                insertExercise(exercise, "", (exercise) => {
+                insertExercise({name: exercise, description: ""}, (exercise) => {
                   setExercises([...exercises, exercise]);
                 });
                 hideDialog();
@@ -78,7 +81,7 @@ export default function Exercises({ navigation }: any) {
         </Dialog>
       </Portal>
     </>
-  );
+  ), [exercises, dialogVisible, exercise]);
 }
 
 const styles = StyleSheet.create({
