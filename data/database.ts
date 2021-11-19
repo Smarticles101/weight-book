@@ -94,7 +94,7 @@ export function insertSet(
 }
 
 export function updateSet(
-  { id, reps, weight, notes, timestamp, exerciseId }: IdExerciseSet,
+  { id, reps, weight, notes, timestamp }: IdExerciseSet,
   callback: UpdateSetCallback
 ) {
   database.transaction((tx) => {
@@ -102,7 +102,7 @@ export function updateSet(
       "update sets set reps = ?, weight = ?, notes = ?, timestamp = ? where id is (?)",
       [reps, weight, notes, timestamp.valueOf(), id],
       (_, { rows }) => {
-        callback({ id, reps, weight, notes, timestamp, exerciseId });
+        callback({ id, reps, weight, notes, timestamp });
       }
     );
   });

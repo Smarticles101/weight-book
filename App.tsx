@@ -15,29 +15,9 @@ import ExerciseLog from "./screens/ExerciseLog";
 import AddSet from "./screens/AddSet";
 import EditSet from "./screens/EditSet";
 import ExerciseSetsProvider from "./data/exerciseSetsProvider";
+import Header from "./Header";
 
 const Stack = createNativeStackNavigator();
-
-const Header = ({
-  navigation,
-  route,
-  options,
-  back,
-}: NativeStackHeaderProps) => {
-  const title =
-    options.headerTitle !== undefined
-      ? options.headerTitle
-      : options.title !== undefined
-      ? options.title
-      : route.name;
-
-  return (
-    <Appbar.Header>
-      {back && <Appbar.BackAction onPress={navigation.goBack} />}
-      <Appbar.Content title={title} />
-    </Appbar.Header>
-  );
-};
 
 // TODO:
 //  - review this https://reactnavigation.org/docs/typescript/
