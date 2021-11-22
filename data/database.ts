@@ -10,8 +10,15 @@ import {
   UpdateSetCallback,
 } from "./types";
 
+const database_version = 1;
+
 let database = SQLite.openDatabase("weightbook");
 
+// TODO: 
+// - transpose this logic into a function
+// - make async?
+// - call in App.tsx, display loading while waiting
+// - database update logic at needs to be linear so we don't just have a bunch of callbacks
 database.transaction((tx) => {
   tx.executeSql(
     "create table if not exists exercises (id integer primary key not null, name string, description string);"
@@ -19,6 +26,28 @@ database.transaction((tx) => {
 
   tx.executeSql(
     "create table if not exists sets (id integer primary key not null, exerciseId integer not null, reps integer, weight integer, timestamp string, notes string, foreign key(exerciseId) references exercises(id))"
+  );
+
+  tx.executeSql(
+    `create table if not exists metadata (version integer not null);`,
+    [],
+    () => {
+      tx.executeSql(`select version from metadata;`, [], (tx, results) => {
+        if (results.rows.length === 0) {
+          tx.executeSql(
+            `insert into metadata (version) values (?);`,
+            [database_version],
+            () => {
+              console.log("Database created");
+            }
+          );
+        } else if (results.rows.item(0).version !== database_version) {
+          console.log("Database version mismatch");
+          // TODO: update database schema
+          
+        }
+      });
+    }
   );
 });
 
