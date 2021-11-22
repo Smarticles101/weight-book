@@ -4,10 +4,9 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
-  NativeStackHeaderProps,
 } from "@react-navigation/native-stack";
 
-import { Provider as PaperProvider, Appbar } from "react-native-paper";
+import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 
 import ExercisesScreen from "./screens/Exercises";
@@ -44,7 +43,7 @@ function App() {
               <Stack.Screen name="Exercises" component={ExercisesScreen} />
               <Stack.Screen name="Exercise Log" component={ExerciseLog} />
             </Stack.Group>
-            <Stack.Group screenOptions={{ presentation: "modal" }}>
+            <Stack.Group screenOptions={{ presentation: 'containedModal' }}>
               <Stack.Screen name="Add Set" component={AddSet} />
               <Stack.Screen name="Edit Set" component={EditSet} />
             </Stack.Group>

@@ -15,7 +15,7 @@ const Header = ({
       ? options.title
       : route.name;
 
-  const modal = options.presentation === "modal";
+  const modal = options.presentation?.toLowerCase().includes("modal");
 
   let actions = null;
 
