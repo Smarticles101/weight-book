@@ -28,8 +28,7 @@ export default function ExerciseLog({ route, navigation }: any) {
       );
 
     let days = Object.keys(setsGroupedByDay);
-    days.sort();
-    days.reverse();
+    days.sort((a, b) => new Date(b).valueOf() - new Date(a).valueOf());
 
     let rows = days.map((day) => {
       let sets = setsGroupedByDay[day];
