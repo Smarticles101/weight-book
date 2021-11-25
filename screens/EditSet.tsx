@@ -48,8 +48,8 @@ export default function EditSet({ navigation, route }: any) {
   const submit = () => {
     editSet({
       id: setId,
-      reps: parseInt(reps),
-      weight: parseInt(weight),
+      reps: parseInt(reps) || 0,
+      weight: parseInt(weight) || 0,
       notes,
       timestamp,
     });

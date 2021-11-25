@@ -34,8 +34,8 @@ export default function AddSet({ navigation, route }: any) {
 
   const submit = () => {
     addSet({
-      reps: parseInt(reps),
-      weight: parseInt(weight),
+      reps: parseInt(reps) || 0,
+      weight: parseInt(weight) || 0,
       notes,
       timestamp: new Date(),
     });
