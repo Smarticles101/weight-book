@@ -93,7 +93,10 @@ export default function ExerciseLog({ route, navigation }: any) {
               <List.Item
                 title={() => (
                   <DataTable.Cell>
-                    {item.timestamp.toLocaleTimeString()}
+                    {item.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </DataTable.Cell>
                 )}
                 descriptionEllipsizeMode="middle"

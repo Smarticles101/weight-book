@@ -2,9 +2,7 @@
 
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import {
-  createNativeStackNavigator,
-} from "@react-navigation/native-stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +13,9 @@ import AddSet from "./screens/AddSet";
 import EditSet from "./screens/EditSet";
 import ExerciseSetsProvider from "./data/exerciseSetsProvider";
 import Header from "./Header";
+
+import { en, registerTranslation } from "react-native-paper-dates";
+registerTranslation("en", en);
 
 const Stack = createNativeStackNavigator();
 
@@ -43,7 +44,7 @@ function App() {
               <Stack.Screen name="Exercises" component={ExercisesScreen} />
               <Stack.Screen name="Exercise Log" component={ExerciseLog} />
             </Stack.Group>
-            <Stack.Group screenOptions={{ presentation: 'containedModal' }}>
+            <Stack.Group screenOptions={{ presentation: "containedModal" }}>
               <Stack.Screen name="Add Set" component={AddSet} />
               <Stack.Screen name="Edit Set" component={EditSet} />
             </Stack.Group>
