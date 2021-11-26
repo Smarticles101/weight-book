@@ -3,12 +3,18 @@
         "production": {}
     },
     "build": {
-        "preview": {
-            "android": {
-                "buildType": "apk"
+        "production": {
+            "ios": {
+                "cocoapods": "1.11.2"
             }
         },
-        "production": {}
+        "preview": {
+            "extends": "production",
+            "android": {
+                "buildType": "apk"
+            },
+            "distribution": "internal"
+        }
     },
     "cli": {
         "version": ">= 0.38.1"
