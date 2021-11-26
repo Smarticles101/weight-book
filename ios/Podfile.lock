@@ -1,6 +1,9 @@
 PODS:
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
+  - EXAdsAdMob (11.0.3):
+    - ExpoModulesCore
+    - Google-Mobile-Ads-SDK (= 7.69.0)
   - EXApplication (4.0.0):
     - ExpoModulesCore
   - EXConstants (12.1.3):
@@ -123,10 +126,31 @@ PODS:
     - GoogleUtilities/Environment (~> 7.6)
     - "GoogleUtilities/NSData+zlib (~> 7.6)"
   - glog (0.3.5)
+  - Google-Mobile-Ads-SDK (7.69.0):
+    - GoogleAppMeasurement (~> 7.0)
+    - GoogleUserMessagingPlatform (~> 1.1)
+  - GoogleAppMeasurement (7.11.0):
+    - GoogleAppMeasurement/AdIdSupport (= 7.11.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
+    - GoogleUtilities/MethodSwizzler (~> 7.0)
+    - GoogleUtilities/Network (~> 7.0)
+    - "GoogleUtilities/NSData+zlib (~> 7.0)"
+    - nanopb (~> 2.30908.0)
+  - GoogleAppMeasurement/AdIdSupport (7.11.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
+    - GoogleUtilities/MethodSwizzler (~> 7.0)
+    - GoogleUtilities/Network (~> 7.0)
+    - "GoogleUtilities/NSData+zlib (~> 7.0)"
+    - nanopb (~> 2.30908.0)
   - GoogleDataTransport (9.1.2):
     - GoogleUtilities/Environment (~> 7.2)
     - nanopb (~> 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUserMessagingPlatform (1.4.0)
+  - GoogleUtilities/AppDelegateSwizzler (7.6.0):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
   - GoogleUtilities/Environment (7.6.0):
     - PromisesObjC (< 3.0, >= 1.2)
   - GoogleUtilities/ISASwizzler (7.6.0)
@@ -134,7 +158,13 @@ PODS:
     - GoogleUtilities/Environment
   - GoogleUtilities/MethodSwizzler (7.6.0):
     - GoogleUtilities/Logger
+  - GoogleUtilities/Network (7.6.0):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
   - "GoogleUtilities/NSData+zlib (7.6.0)"
+  - GoogleUtilities/Reachability (7.6.0):
+    - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.6.0):
     - GoogleUtilities/Logger
   - nanopb (2.30908.0):
@@ -451,6 +481,7 @@ PODS:
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - EXAdsAdMob (from `../node_modules/expo-ads-admob/ios`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXErrorRecovery (from `../node_modules/expo-error-recovery/ios`)
@@ -518,7 +549,10 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebasePerformance
     - FirebaseRemoteConfig
+    - Google-Mobile-Ads-SDK
+    - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleUserMessagingPlatform
     - GoogleUtilities
     - nanopb
     - PromisesObjC
@@ -526,6 +560,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  EXAdsAdMob:
+    :path: "../node_modules/expo-ads-admob/ios"
   EXApplication:
     :path: "../node_modules/expo-application/ios"
   EXConstants:
@@ -636,6 +672,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
+  EXAdsAdMob: 2b1bfdd00f5702c709f1704153821697c5a83996
   EXApplication: 0e15240e4d125b62f1cae48759ffbbd32b9286a6
   EXConstants: 6d585d93723b18d7a8c283591a335609e3bc153e
   EXErrorRecovery: ac2622400a32be84604591f70d0efff416e4b9a2
@@ -666,7 +703,10 @@ SPEC CHECKSUMS:
   FirebasePerformance: 81f183c3fc593241d000a6367e54fd0f7ed402e3
   FirebaseRemoteConfig: a75c1bd44ebd3ed4ad3fa1ff09414a8b133be405
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
+  Google-Mobile-Ads-SDK: 2f288748a42920d1c744946a460896a95b0e9110
+  GoogleAppMeasurement: fd19169c3034975cb934e865e5667bfdce59df7f
   GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
+  GoogleUserMessagingPlatform: b168e8c46cd8f92aa3e34b584c4ca78a411ce367
   GoogleUtilities: 684ee790a24f73ebb2d1d966e9711c203f2a4237
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
@@ -702,6 +742,6 @@ SPEC CHECKSUMS:
   RNScreens: 6e1ea5787989f92b0671049b808aef64fa1ef98c
   Yoga: e6ecf3fa25af9d4c87e94ad7d5d292eedef49749
 
-PODFILE CHECKSUM: b559d5dd125501389b07efa249c43c49407f49b8
+PODFILE CHECKSUM: e2179b16415efb937ecb804bcbf44c1e5fa542aa
 
 COCOAPODS: 1.11.2

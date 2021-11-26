@@ -19,23 +19,32 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "me.loganstucki.weightbook",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3845309455501477~3834632831"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3845309455501477~3647688747"
+      },
       "package": "me.loganstucki.weightbook",
       "googleServicesFile": "./google-services.json"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "@react-native-firebase/app",
       "@react-native-firebase/perf",
-      "@react-native-firebase/crashlytics"
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-ads-admob",
+        {
+          "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
+        }
+      ]
     ]
   }
 }

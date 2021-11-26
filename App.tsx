@@ -13,6 +13,7 @@ import AddSet from "./screens/AddSet";
 import EditSet from "./screens/EditSet";
 import ExerciseSetsProvider from "./data/exerciseSetsProvider";
 import Header from "./Header";
+import Footer from "./Footer";
 
 import { en, registerTranslation } from "react-native-paper-dates";
 registerTranslation("en", en);
@@ -50,6 +51,7 @@ function App() {
             </Stack.Group>
           </Stack.Navigator>
         </NavigationContainer>
+        <Footer />
       </PaperProvider>
     </ExerciseSetsProvider>
   );
