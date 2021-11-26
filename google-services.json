@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "486335394772",
+    "project_id": "weight-book",
+    "storage_bucket": "weight-book.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:486335394772:android:88dcbee4bf766d2e0b1c41",
+        "android_client_info": {
+          "package_name": "me.loganstucki.weightbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "486335394772-eqftgillrlhu5icsch3nksl9b5tcuhct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkhlcr8RINYZbTLp6i63bGuTwCg-iRMdU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "486335394772-eqftgillrlhu5icsch3nksl9b5tcuhct.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "486335394772-h1lss21qgmg0cn4vogp7jukqqi2tcm1v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "me.loganstucki.weightbook"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
