@@ -4,6 +4,7 @@ import {
   ExerciseSet,
   GetExercisesCallback,
   GetSetsCallback,
+  IdExercise,
   IdExerciseSet,
   InsertExerciseCallback,
   InsertSetCallback,
@@ -73,6 +74,31 @@ export function insertExercise(
         }
       }
     );
+  });
+}
+
+export function updateExercise(
+  { id, name, description }: IdExercise,
+  callback: InsertExerciseCallback
+) {
+  database.transaction((tx) => {
+    tx.executeSql(
+      "update exercises set name = ?, description = ? where id = ?",
+      [name, description, id],
+      (_, {}) => {
+        callback({ id, name, description });
+      }
+    );
+  });
+}
+
+export function deleteExercise(id: number, callback: Function) {
+  database.transaction((tx) => {
+    tx.executeSql(`delete from sets where exerciseId = ?;`, [id]);
+    tx.executeSql(`delete from exercises where id = ?;`, [id]);
+  }, (error) => {
+  }, () => {
+    callback(id);
   });
 }
 

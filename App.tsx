@@ -7,16 +7,21 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 
+import ExerciseSetsProvider from "./data/exerciseSetsProvider";
+import ExercisesProvider from "./data/exercisesProvider";
+
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
 import ExercisesScreen from "./screens/Exercises";
 import ExerciseLog from "./screens/ExerciseLog";
 import AddSet from "./screens/AddSet";
 import EditSet from "./screens/EditSet";
-import ExerciseSetsProvider from "./data/exerciseSetsProvider";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import AddExercise from "./screens/AddExercise";
+import EditExercise from "./screens/EditExercise";
 
 import { en, registerTranslation } from "react-native-paper-dates";
-import ExercisesProvider from "./data/exercisesProvider";
+
 registerTranslation("en", en);
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +55,8 @@ function App() {
               <Stack.Group screenOptions={{ presentation: "containedModal" }}>
                 <Stack.Screen name="Add Set" component={AddSet} />
                 <Stack.Screen name="Edit Set" component={EditSet} />
+                <Stack.Screen name="Add Exercise" component={AddExercise} />
+                <Stack.Screen name="Edit Exercise" component={EditExercise} />
               </Stack.Group>
             </Stack.Navigator>
           </NavigationContainer>

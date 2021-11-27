@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { SectionList, StyleSheet } from "react-native";
 
-import { DataTable, FAB, List } from "react-native-paper";
+import { Appbar, DataTable, FAB, List } from "react-native-paper";
 import { getSets } from "../data/database";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { IdExercise, IdExerciseSet } from "../data/types";
@@ -11,7 +11,12 @@ export default function ExerciseLog({ route, navigation }: any) {
     { day: String; data: IdExerciseSet[] }[]
   >([]);
 
-  const { exerciseSets } = useExerciseSets();
+  const { exerciseSets, useExercise } = useExerciseSets();
+  const { exerciseId, exerciseName } = route.params;
+
+  useEffect(() => {
+    useExercise(exerciseId);
+  }, [exerciseName]);
 
   useEffect(() => {
     let setsGroupedByDay = exerciseSets
@@ -40,6 +45,20 @@ export default function ExerciseLog({ route, navigation }: any) {
 
     setExerciseSetsByDay(rows);
   }, [exerciseSets]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Appbar.Action
+          icon="pencil"
+          onPress={() => navigation.push("Edit Exercise", {
+            exerciseId,
+            startExerciseName: exerciseName,
+          })}
+        />
+      ),
+    });
+  }, [navigation, route.params.id]);
 
   const addSet = () => {
     let reps, weight, notes;
