@@ -13,6 +13,9 @@
             "android": {
                 "buildType": "apk"
             },
+            "ios": {
+                "enterpriseProvisioning": "universal"
+            },
             "distribution": "internal"
         }
     },
