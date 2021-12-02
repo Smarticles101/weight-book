@@ -78,6 +78,7 @@ export default function AddSet({ navigation, route }: any) {
                   value={weight}
                   onChangeText={(weight) => setWeight(weight)}
                   style={styles.textBox}
+                  right={<TextInput.Affix text="lbs" />}
                 />
                 <TextInput
                   multiline

@@ -124,7 +124,7 @@ export default function ExerciseLog({ route, navigation }: any) {
                 right={() => (
                   <>
                     <DataTable.Cell numeric>{item.reps}</DataTable.Cell>
-                    <DataTable.Cell numeric>{item.weight}</DataTable.Cell>
+                    <DataTable.Cell numeric>{`${item.weight}lbs`}</DataTable.Cell>
                   </>
                 )}
               ></List.Item>

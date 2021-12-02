@@ -181,6 +181,7 @@ export default function EditSet({ navigation, route }: any) {
                     value={weight}
                     onChangeText={(weight) => setWeight(weight)}
                     style={styles.textBox}
+                    right={<TextInput.Affix text="lbs" />}
                   />
                   <View style={styles.dateTimeInputContainer}>
                     <TextInput
