@@ -37,7 +37,7 @@ export default function EditSet({ navigation, route }: any) {
     setReps(startReps);
     setWeight(startWeight);
     setNotes(startNotes);
-    setTimestamp(timestamp);
+    setTimestamp(new Date(startTimestamp));
   }, []);
 
   const close = () => {
