@@ -1,24 +1,18 @@
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { SectionList, StyleSheet } from "react-native";
 
-import { Appbar, DataTable, FAB, List } from "react-native-paper";
-import { getSets } from "../data/database";
+import { DataTable, FAB, List } from "react-native-paper";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
-import { IdExercise, IdExerciseSet } from "../data/types";
+import { IdExerciseSet } from "../data/types";
 
 export default function ExerciseLog({ route, navigation }: any) {
+  const { exerciseSets } = useExerciseSets();
+
   const [exerciseSetsByDay, setExerciseSetsByDay] = React.useState<
     { day: String; data: IdExerciseSet[] }[]
   >([]);
 
-  const { exerciseSets, useExercise } = useExerciseSets();
-  const { exerciseId, exerciseName } = route.params;
-
-  useEffect(() => {
-    useExercise(exerciseId);
-  }, [exerciseName]);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     let setsGroupedByDay = exerciseSets
       .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf())
       .reduce(
@@ -45,20 +39,6 @@ export default function ExerciseLog({ route, navigation }: any) {
 
     setExerciseSetsByDay(rows);
   }, [exerciseSets]);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Appbar.Action
-          icon="pencil"
-          onPress={() => navigation.push("Edit Exercise", {
-            exerciseId,
-            startExerciseName: exerciseName,
-          })}
-        />
-      ),
-    });
-  }, [navigation, route.params.id]);
 
   const addSet = () => {
     let reps, weight, notes;
@@ -124,7 +104,9 @@ export default function ExerciseLog({ route, navigation }: any) {
                 right={() => (
                   <>
                     <DataTable.Cell numeric>{item.reps}</DataTable.Cell>
-                    <DataTable.Cell numeric>{`${item.weight}lbs`}</DataTable.Cell>
+                    <DataTable.Cell
+                      numeric
+                    >{`${item.weight}lbs`}</DataTable.Cell>
                   </>
                 )}
               ></List.Item>

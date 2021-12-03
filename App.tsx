@@ -21,6 +21,7 @@ import AddExercise from "./screens/AddExercise";
 import EditExercise from "./screens/EditExercise";
 
 import { en, registerTranslation } from "react-native-paper-dates";
+import Exercise from "./screens/Exercise";
 
 registerTranslation("en", en);
 
@@ -50,7 +51,7 @@ function App() {
             >
               <Stack.Group>
                 <Stack.Screen name="Exercises" component={ExercisesScreen} />
-                <Stack.Screen name="Exercise Log" component={ExerciseLog} />
+                <Stack.Screen name="Exercise Log" component={Exercise} />
               </Stack.Group>
               <Stack.Group screenOptions={{ presentation: "containedModal" }}>
                 <Stack.Screen name="Add Set" component={AddSet} />

@@ -8,12 +8,14 @@ export const Context = createContext({
   addSet: (s: ExerciseSet) => {},
   editSet: (s: IdExerciseSet) => {},
   removeSet: (sId: number) => {},
-  useExercise: (eId: number) => {},
+  useExercise: (eId: number, n: string) => {},
+  activeExerciseName: "",
+  activeExerciseId: undefined as number | undefined,
 });
 
 export default function ExerciseSetsProvider({ children }: any) {
-  
-  const [exerciseId, setExerciseId] = React.useState<number>();
+  const [activeExerciseId, setActiveExerciseId] = React.useState<number>();
+  const [activeExerciseName, setActiveExerciseName] = React.useState<string>("");
   const [sets, dispatchSets] = useReducer((state: any, action: any) => {
     switch (action.type) {
       case "SET_SETS":
@@ -38,8 +40,8 @@ export default function ExerciseSetsProvider({ children }: any) {
   }, []);
 
   const addSet = (set: ExerciseSet) => {
-    if (exerciseId) {
-      insertSet(exerciseId, set, (set) => {
+    if (activeExerciseId) {
+      insertSet(activeExerciseId, set, (set) => {
         dispatchSets({ type: "ADD_SET", payload: set });
       });
     }
@@ -57,9 +59,10 @@ export default function ExerciseSetsProvider({ children }: any) {
     });
   };
   
-  const useExercise = (exerciseId: number) => {
+  const useExercise = (exerciseId: number, exerciseName: string) => {
     getSets(exerciseId, (sets: any) => {
-      setExerciseId(exerciseId);
+      setActiveExerciseId(exerciseId);
+      setActiveExerciseName(exerciseName);
       dispatchSets({ type: "SET_SETS", payload: sets });
     });
   };
@@ -72,6 +75,8 @@ export default function ExerciseSetsProvider({ children }: any) {
         editSet,
         removeSet,
         useExercise,
+        activeExerciseName,
+        activeExerciseId,
       }}
     >
       {children}

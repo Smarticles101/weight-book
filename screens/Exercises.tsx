@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo } from "react";
 import { FlatList, StyleSheet } from "react-native";
 
-import {
-  FAB,
-  List,
-} from "react-native-paper";
+import { FAB, List } from "react-native-paper";
+import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { useExercises } from "../data/exercisesProvider";
 
 export default function Exercises({ navigation }: any) {
+  const { useExercise } = useExerciseSets();
   const showDialog = () => {
     navigation.push("Add Exercise");
   };
@@ -27,10 +26,8 @@ export default function Exercises({ navigation }: any) {
             <List.Item
               title={item.name}
               onPress={() => {
-                navigation.push("Exercise Log", {
-                  exerciseId: item.id,
-                  exerciseName: item.name,
-                });
+                useExercise(item.id, item.name);
+                navigation.push("Exercise Log");
               }}
             />
           )}
