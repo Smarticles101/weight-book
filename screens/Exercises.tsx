@@ -26,8 +26,11 @@ export default function Exercises({ navigation }: any) {
             <List.Item
               title={item.name}
               onPress={() => {
-                useExercise(item.id, item.name);
-                navigation.push("Exercise Log");
+                useExercise(item);
+                navigation.push("Exercise Log", {
+                  defaultName: item.name,
+                  defaultId: item.id,
+                });
               }}
             />
           )}

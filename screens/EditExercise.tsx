@@ -27,7 +27,7 @@ export default function EditExercise({ navigation, route }: any) {
 
   const { editExercise, removeExercise } = useExercises();
 
-  const { activeExerciseId, useExercise } = useExerciseSets();
+  const { activeExercise, useExercise } = useExerciseSets();
 
   useEffect(() => {
     setExerciseName(startExerciseName);
@@ -35,8 +35,8 @@ export default function EditExercise({ navigation, route }: any) {
 
   const submit = () => {
     editExercise({ id: exerciseId, name: exerciseName, description: "" });
-    if (activeExerciseId === exerciseId) {
-      useExercise(exerciseId, exerciseName);
+    if (activeExercise.id === exerciseId) {
+      useExercise({ id: exerciseId, name: exerciseName, description: "" });
     }
     setExerciseName("");
     navigation.goBack();

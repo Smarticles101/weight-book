@@ -1,21 +1,23 @@
 import * as React from "react";
 import { createContext, useReducer } from "react";
 import { deleteSet, getSets, insertSet, updateSet } from "./database";
-import { ExerciseSet, IdExerciseSet } from "./types";
+import { ExerciseSet, IdExerciseSet, IdExercise } from "./types";
 
 export const Context = createContext({
   exerciseSets: [] as IdExerciseSet[],
   addSet: (s: ExerciseSet) => {},
   editSet: (s: IdExerciseSet) => {},
   removeSet: (sId: number) => {},
-  useExercise: (eId: number, n: string) => {},
-  activeExerciseName: "",
-  activeExerciseId: undefined as number | undefined,
+  useExercise: (e: IdExercise) => {},
+  activeExercise: {} as IdExercise,
 });
 
 export default function ExerciseSetsProvider({ children }: any) {
-  const [activeExerciseId, setActiveExerciseId] = React.useState<number>();
-  const [activeExerciseName, setActiveExerciseName] = React.useState<string>("");
+  const [activeExercise, setActiveExercise] = React.useState<IdExercise>({
+    name: "",
+    id: 0,
+    description: "",
+  });
   const [sets, dispatchSets] = useReducer((state: any, action: any) => {
     switch (action.type) {
       case "SET_SETS":
@@ -40,8 +42,8 @@ export default function ExerciseSetsProvider({ children }: any) {
   }, []);
 
   const addSet = (set: ExerciseSet) => {
-    if (activeExerciseId) {
-      insertSet(activeExerciseId, set, (set) => {
+    if (activeExercise) {
+      insertSet(activeExercise.id, set, (set) => {
         dispatchSets({ type: "ADD_SET", payload: set });
       });
     }
@@ -58,11 +60,10 @@ export default function ExerciseSetsProvider({ children }: any) {
       dispatchSets({ type: "REMOVE_SET", payload: setId });
     });
   };
-  
-  const useExercise = (exerciseId: number, exerciseName: string) => {
-    getSets(exerciseId, (sets: any) => {
-      setActiveExerciseId(exerciseId);
-      setActiveExerciseName(exerciseName);
+
+  const useExercise = (exercise: IdExercise) => {
+    getSets(exercise.id, (sets: any) => {
+      setActiveExercise(exercise);
       dispatchSets({ type: "SET_SETS", payload: sets });
     });
   };
@@ -75,8 +76,7 @@ export default function ExerciseSetsProvider({ children }: any) {
         editSet,
         removeSet,
         useExercise,
-        activeExerciseName,
-        activeExerciseId,
+        activeExercise: activeExercise,
       }}
     >
       {children}
