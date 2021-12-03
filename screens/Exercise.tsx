@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ExerciseLog from "./ExerciseLog";
 import ExerciseGraph from "./ExerciseGraph";
@@ -20,9 +20,8 @@ export default function Exercise({ route, navigation }: any) {
             navigation.push("Edit Exercise", {
               exerciseId: activeExerciseId,
               startExerciseName: activeExerciseName,
-            })
-          }
-          }
+            });
+          }}
         />
       ),
       title: activeExerciseName,
