@@ -1,65 +1,90 @@
-import React from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
-import { LineChart } from "react-native-chart-kit";
-import { Paragraph } from "react-native-paper";
+import React, { useEffect, useState } from "react";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
-import { IdExerciseSet } from "../data/types";
+import { AreaChart, Grid } from "react-native-svg-charts";
+import * as shape from "d3-shape";
+import { Line } from "react-native-svg";
+import {
+  GestureEvent,
+  PanGestureHandler,
+  PanGestureHandlerEventPayload,
+} from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedProps,
+  useSharedValue,
+  withDecay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+
+const AnimatedLine = Animated.createAnimatedComponent(Line);
 
 export default function ExerciseGraph({ route, navigation }: any) {
   const { exerciseSets } = useExerciseSets();
+  const [width, setWidth] = useState(-1);
 
-  if (exerciseSets.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Paragraph>Log some sets and come back to view your charts</Paragraph>
-      </View>
-    );
+  const _touchX = useSharedValue(0);
+  const opacity = useSharedValue(0);
+
+  const animatedProps = useAnimatedProps(() => {
+    let x1 = _touchX.value;
+    let x2 = _touchX.value;
+
+    return {
+      x1,
+      x2,
+      stroke: `rgba(134, 65, 244, ${opacity.value})`,
+    };
+  }, [width, exerciseSets]);
+
+  const onGestureEvent = (event: GestureEvent<PanGestureHandlerEventPayload>) => {
+    let x = event.nativeEvent.x;
+
+    if (width != -1) {
+      let xSnap = width / (exerciseSets.length - 1);
+      let ind = Math.round(x / xSnap);
+
+      // snap x1 and x2 to the nearest xSnap
+      x = ind * xSnap;
+    }
+
+    _touchX.value = withSpring(x, {
+      overshootClamping: true,
+    });
   }
 
   return (
-    <LineChart
-      data={{
-        labels: exerciseSets.map((set: IdExerciseSet) => set.timestamp.toLocaleDateString()),
-        datasets: [
-          {
-            data: exerciseSets.map((set: IdExerciseSet) => set.weight * set.reps),
-          },
-        ],
-      }}
-      width={Dimensions.get("window").width} // from react-native
-      height={220}
-      yAxisSuffix="lbs"
-      yAxisInterval={1} // optional, defaults to 1
-      chartConfig={{
-        backgroundColor: "#e26a00",
-        backgroundGradientFrom: "#fb8c00",
-        backgroundGradientTo: "#ffa726",
-        decimalPlaces: 0, // optional, defaults to 2dp
-        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        style: {
-          borderRadius: 16,
-        },
-        propsForDots: {
-          r: "6",
-          strokeWidth: "2",
-          stroke: "#ffa726",
-        },
-      }}
-      bezier
-      style={{
-        margin: 8,
-        borderRadius: 0,
-      }}
-    />
+    <PanGestureHandler
+      onGestureEvent={onGestureEvent}
+      onBegan={() => (opacity.value = withTiming(1))}
+      onEnded={() => (opacity.value = withTiming(0))}
+    >
+      <Animated.View style={{ height: 200, padding: 10 }}>
+        <AreaChart
+          style={{ flex: 1 }}
+          data={exerciseSets}
+          yAccessor={({ item }) => item.weight * item.reps}
+          contentInset={{ top: 30, bottom: 30 }}
+          curve={shape.curveLinear}
+          svg={{ fill: "rgba(134, 65, 244, 0.8)" }}
+        >
+          <WidthSetter setWidth={setWidth} />
+          <Grid />
+
+          <AnimatedLine
+            animatedProps={animatedProps}
+            y1="0"
+            y2="200"
+            strokeWidth="2"
+          />
+        </AreaChart>
+      </Animated.View>
+    </PanGestureHandler>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+// this is dumb, but it works \o/
+const WidthSetter = (props: any) => {
+  const { width, setWidth } = props;
+  useEffect(() => setWidth(width), [width]);
+  return null;
+};
