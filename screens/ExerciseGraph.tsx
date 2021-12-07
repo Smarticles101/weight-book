@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
-import { AreaChart, Grid } from "react-native-svg-charts";
+import { Grid } from "react-native-svg-charts";
 import * as shape from "d3-shape";
+import * as scale from "d3-scale";
 import { Line } from "react-native-svg";
 import {
   GestureEvent,
@@ -15,6 +16,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { TextInput, View } from "react-native";
+import { Chip } from "react-native-paper";
+import CustomLineChart from "../components/chart/IndividuallyScaledLineChart";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
@@ -25,6 +28,11 @@ const spring = {
   stiffness: 300,
   damping: 20,
 };
+
+// analogous colors
+const loadColor = "hsla(60, 50%, 50%, 0.75)";
+const weightColor = "hsla(90, 50%, 50%, 0.75)";
+const repsColor = "hsla(30, 50%, 50%, 0.75)";
 
 // TODO:
 //     toFixed should use the precision of the number we are working towards
@@ -42,12 +50,45 @@ export default function ExerciseGraph({ route, navigation }: any) {
 
   const [exerciseSets, setExerciseSets] = useState(unsortedSets);
 
+  const [weightToggle, setWeightToggle] = useState(true);
+  const [repsToggle, setRepsToggle] = useState(true);
+  const [loadToggle, setLoadToggle] = useState(true);
+
+  const toggleWeight = () => setWeightToggle(!weightToggle);
+  const toggleReps = () => setRepsToggle(!repsToggle);
+  const toggleLoad = () => setLoadToggle(!loadToggle);
+
+  const [data, setData] = useState<any[]>([]);
+
   useEffect(() => {
     unsortedSets.sort((a, b) => {
       return a.timestamp.valueOf() - b.timestamp.valueOf();
     });
     setExerciseSets(unsortedSets);
   }, [unsortedSets]);
+
+  useEffect(() => {
+    let newData = [];
+    if (weightToggle) {
+      newData.push({
+        data: exerciseSets.map((set) => set.weight),
+        svg: { stroke: weightColor, strokeWidth: 5 },
+      });
+    }
+    if (repsToggle) {
+      newData.push({
+        data: exerciseSets.map((set) => set.reps),
+        svg: { stroke: repsColor, strokeWidth: 5 },
+      });
+    }
+    if (loadToggle) {
+      newData.push({
+        data: exerciseSets.map((set) => set.weight * set.reps),
+        svg: { stroke: loadColor, strokeWidth: 5 },
+      });
+    }
+    setData(newData);
+  }, [exerciseSets, weightToggle, repsToggle, loadToggle]);
 
   const [width, setWidth] = useState(-1);
 
@@ -81,7 +122,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
   const animatedLoadProps = useAnimatedProps(
     () =>
       ({
-        text: `Load ${load.value.toFixed(0)}lbs`,
+        text: `${load.value.toFixed(0)}lbs`,
       } as any),
     [width, exerciseSets]
   );
@@ -89,7 +130,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
   const animatedRepsProps = useAnimatedProps(
     () =>
       ({
-        text: `Reps ${reps.value.toFixed(0)}`,
+        text: `${reps.value.toFixed(0)}`,
       } as any),
     [width, exerciseSets]
   );
@@ -97,7 +138,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
   const animatedWeightProps = useAnimatedProps(
     () =>
       ({
-        text: `Weight ${weight.value.toFixed(0)}lbs`,
+        text: `${weight.value.toFixed(0)}lbs`,
       } as any),
     [width, exerciseSets]
   );
@@ -115,10 +156,12 @@ export default function ExerciseGraph({ route, navigation }: any) {
       x = ind * xSnap;
       let set = exerciseSets[ind];
 
-      load.value = withSpring(set.weight * set.reps, spring);
-      reps.value = withSpring(set.reps, spring);
-      weight.value = withSpring(set.weight, spring);
-      timestamp.value = withSpring(set.timestamp.valueOf(), spring);
+      if (set) {
+        load.value = withSpring(set.weight * set.reps, spring);
+        reps.value = withSpring(set.reps, spring);
+        weight.value = withSpring(set.weight, spring);
+        timestamp.value = withSpring(set.timestamp.valueOf(), spring);
+      }
     }
 
     _touchX.value = withSpring(x, spring);
@@ -131,22 +174,77 @@ export default function ExerciseGraph({ route, navigation }: any) {
       onEnded={() => (opacity.value = withTiming(0))}
     >
       <Animated.View style={{ padding: 10 }}>
-        <AnimatedTextInput editable={false} animatedProps={animatedDateProps} />
-        <AnimatedTextInput editable={false} animatedProps={animatedLoadProps} />
-        <AnimatedTextInput editable={false} animatedProps={animatedRepsProps} />
-        <AnimatedTextInput
-          editable={false}
-          animatedProps={animatedWeightProps}
-        />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            padding: 10,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Chip
+              selected={weightToggle}
+              onPress={toggleWeight}
+              style={{ height: 32 }}
+            >
+              Weight
+            </Chip>
+            {weightToggle && (
+              <AnimatedTextInput
+                editable={false}
+                style={{ color: weightColor }}
+                animatedProps={animatedWeightProps}
+              />
+            )}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Chip
+              selected={repsToggle}
+              onPress={toggleReps}
+              style={{ height: 32 }}
+            >
+              Reps
+            </Chip>
+            {repsToggle && (
+              <AnimatedTextInput
+                editable={false}
+                style={{ color: repsColor }}
+                animatedProps={animatedRepsProps}
+              />
+            )}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Chip
+              selected={loadToggle}
+              onPress={toggleLoad}
+              style={{ height: 32 }}
+            >
+              Load
+            </Chip>
+            {loadToggle && (
+              <AnimatedTextInput
+                editable={false}
+                style={{ color: loadColor }}
+                animatedProps={animatedLoadProps}
+              />
+            )}
+          </View>
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+          <AnimatedTextInput
+            editable={false}
+            animatedProps={animatedDateProps}
+          />
+        </View>
 
         <View style={{ height: 200, width: width }}>
-          <AreaChart
+          <CustomLineChart
             style={{ flex: 1 }}
-            data={exerciseSets}
-            yAccessor={({ item }) => item.weight * item.reps}
+            data={data}
             contentInset={{ top: 30, bottom: 30 }}
             curve={shape.curveLinear}
-            svg={{ fill: "rgba(134, 65, 244, 0.8)" }}
+            yScale={scale.scaleLinear}
+            animate
           >
             <WidthSetter setWidth={setWidth} />
             <Grid />
@@ -157,7 +255,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
               y2="200"
               strokeWidth="2"
             />
-          </AreaChart>
+          </CustomLineChart>
         </View>
       </Animated.View>
     </PanGestureHandler>

@@ -8,8 +8,8 @@ import { StatusBar } from "expo-status-bar";
 import ExerciseSetsProvider from "./data/exerciseSetsProvider";
 import ExercisesProvider from "./data/exercisesProvider";
 
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
 
 import ExercisesScreen from "./screens/Exercises";
 import ExerciseLog from "./screens/ExerciseLog";
