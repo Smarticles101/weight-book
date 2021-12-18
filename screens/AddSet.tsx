@@ -7,13 +7,16 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from "react-native";
-import { TextInput, Dialog, Appbar } from "react-native-paper";
+import { TextInput, Dialog, Appbar, HelperText } from "react-native-paper";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
 
 export default function AddSet({ navigation, route }: any) {
   const [reps, setReps] = React.useState("");
   const [weight, setWeight] = React.useState("");
   const [notes, setNotes] = React.useState("");
+
+  const [repsErr, setRepsErr] = React.useState(false);
+  const [weightErr, setWeightErr] = React.useState(false);
 
   const { startReps, startWeight, startNotes } = route.params;
   const { addSet } = useExerciseSets();
@@ -33,13 +36,21 @@ export default function AddSet({ navigation, route }: any) {
   };
 
   const submit = () => {
-    addSet({
-      reps: parseInt(reps) || 0,
-      weight: parseInt(weight) || 0,
-      notes,
-      timestamp: new Date(),
-    });
-    close();
+    let parsedReps = parseInt(reps);
+    let parsedWeight = parseFloat(weight);
+
+    setRepsErr(isNaN(parsedReps));
+    setWeightErr(isNaN(parsedWeight));
+
+    if (!isNaN(parsedReps) && !isNaN(parsedWeight)) {
+      addSet({
+        reps: parsedReps,
+        weight: parsedWeight,
+        notes,
+        timestamp: new Date(),
+      });
+      close();
+    }
   };
 
   useLayoutEffect(() => {
@@ -65,20 +76,36 @@ export default function AddSet({ navigation, route }: any) {
               {/* @ts-ignore */}
               <Dialog.Title>Add new set</Dialog.Title>
               <Dialog.Content style={styles.container}>
+                {/* @ts-ignore */}
+                <HelperText type="error" visible={repsErr}>
+                  Reps must be a number
+                </HelperText>
                 <TextInput
                   label="Reps"
                   keyboardType="decimal-pad"
                   value={reps}
-                  onChangeText={(reps) => setReps(reps)}
+                  onChangeText={(reps) => {
+                    setRepsErr(isNaN(parseInt(reps)));
+                    setReps(reps);
+                  }}
                   style={styles.textBox}
+                  error={repsErr}
                 />
+                {/* @ts-ignore */}
+                <HelperText type="error" visible={weightErr}>
+                  Weight must be a number
+                </HelperText>
                 <TextInput
                   label="Weight"
                   keyboardType="decimal-pad"
                   value={weight}
-                  onChangeText={(weight) => setWeight(weight)}
+                  onChangeText={(weight) => {
+                    setWeightErr(isNaN(parseFloat(weight)));
+                    setWeight(weight);
+                  }}
                   style={styles.textBox}
                   right={<TextInput.Affix text="lbs" />}
+                  error={weightErr}
                 />
                 <TextInput
                   multiline

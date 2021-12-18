@@ -11,6 +11,7 @@ import {
   Appbar,
   Button,
   Dialog,
+  HelperText,
   Paragraph,
   Portal,
   TextInput,
@@ -23,6 +24,9 @@ export default function EditSet({ navigation, route }: any) {
   const [weight, setWeight] = React.useState("");
   const [notes, setNotes] = React.useState("");
   const [timestamp, setTimestamp] = React.useState<Date>(new Date());
+
+  const [repsErr, setRepsErr] = React.useState(false);
+  const [weightErr, setWeightErr] = React.useState(false);
 
   const [deleteDialogVisible, setDeleteDialogVisible] = React.useState(false);
   const [datePickerVisible, setDatePickerVisible] = React.useState(false);
@@ -50,14 +54,20 @@ export default function EditSet({ navigation, route }: any) {
   };
 
   const submit = () => {
-    editSet({
-      id: setId,
-      reps: parseInt(reps) || 0,
-      weight: parseInt(weight) || 0,
-      notes,
-      timestamp,
-    });
-    close();
+    let parsedReps = parseInt(reps);
+    let parsedWeight = parseFloat(weight);
+
+    if (!isNaN(parsedReps) && !isNaN(parsedWeight)) {
+      editSet({
+        id: setId,
+        reps: parseInt(reps) || 0,
+        weight: parseInt(weight) || 0,
+        notes,
+        timestamp,
+      });
+
+      close();
+    }
   };
 
   const showDeleteConfirm = () => {
@@ -168,20 +178,36 @@ export default function EditSet({ navigation, route }: any) {
                 {/* @ts-ignore */}
                 <Dialog.Title>Edit set</Dialog.Title>
                 <Dialog.Content style={styles.container}>
+                  {/* @ts-ignore */}
+                  <HelperText type="error" visible={repsErr}>
+                    Reps must be a number
+                  </HelperText>
                   <TextInput
                     label="Reps"
                     keyboardType="decimal-pad"
                     value={reps}
-                    onChangeText={(reps) => setReps(reps)}
+                    onChangeText={(reps) => {
+                      setRepsErr(isNaN(parseInt(reps)));
+                      setReps(reps);
+                    }}
                     style={styles.textBox}
+                    error={repsErr}
                   />
+                  {/* @ts-ignore */}
+                  <HelperText type="error" visible={weightErr}>
+                    Weight must be a number
+                  </HelperText>
                   <TextInput
                     label="Weight"
                     keyboardType="decimal-pad"
                     value={weight}
-                    onChangeText={(weight) => setWeight(weight)}
+                    onChangeText={(weight) => {
+                      setWeightErr(isNaN(parseFloat(weight)));
+                      setWeight(weight);
+                    }}
                     style={styles.textBox}
                     right={<TextInput.Affix text="lbs" />}
+                    error={weightErr}
                   />
                   <View style={styles.dateTimeInputContainer}>
                     <TextInput
