@@ -7,11 +7,13 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from "react-native";
-import { TextInput, Dialog, Appbar } from "react-native-paper";
+import { TextInput, Dialog, Appbar, HelperText } from "react-native-paper";
 import { useExercises } from "../data/exercisesProvider";
 
 export default function AddSet({ navigation, route }: any) {
   const [exerciseName, setExerciseName] = React.useState("");
+
+  const [exerciseNameErr, setExerciseNameErr] = React.useState(false);
 
   const { addExercise } = useExercises();
 
@@ -20,8 +22,12 @@ export default function AddSet({ navigation, route }: any) {
   };
 
   const submit = () => {
-    addExercise({ name: exerciseName, description: "" });
-    close();
+    if (exerciseName.length > 0) {
+      addExercise({ name: exerciseName, description: "" });
+      close();
+    } else {
+      setExerciseNameErr(true);
+    }
   };
 
   useLayoutEffect(() => {
@@ -47,11 +53,19 @@ export default function AddSet({ navigation, route }: any) {
               {/* @ts-ignore */}
               <Dialog.Title>Add new exercise</Dialog.Title>
               <Dialog.Content style={styles.container}>
+                {/* @ts-ignore */}
+                <HelperText type="error" visible={exerciseNameErr}>
+                  Exercise name is required
+                </HelperText>
                 <TextInput
                   label="Exercise name"
                   value={exerciseName}
-                  onChangeText={(reps) => setExerciseName(reps)}
+                  onChangeText={(exercise) => {
+                    setExerciseNameErr(exercise.length === 0);
+                    setExerciseName(exercise);
+                  }}
                   style={styles.textBox}
+                  error={exerciseNameErr}
                 />
               </Dialog.Content>
             </View>

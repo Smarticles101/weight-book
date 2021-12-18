@@ -11,6 +11,7 @@ import {
   Appbar,
   Button,
   Dialog,
+  HelperText,
   Paragraph,
   Portal,
   TextInput,
@@ -20,6 +21,8 @@ import { useExercises } from "../data/exercisesProvider";
 
 export default function EditExercise({ navigation, route }: any) {
   const [exerciseName, setExerciseName] = React.useState("");
+
+  const [exerciseNameErr, setExerciseNameErr] = React.useState(false);
 
   const [deleteDialogVisible, setDeleteDialogVisible] = React.useState(false);
 
@@ -34,12 +37,16 @@ export default function EditExercise({ navigation, route }: any) {
   }, []);
 
   const submit = () => {
-    editExercise({ id: exerciseId, name: exerciseName, description: "" });
-    if (activeExercise.id === exerciseId) {
-      useExercise({ id: exerciseId, name: exerciseName, description: "" });
+    if (exerciseName.length > 0) {
+      editExercise({ id: exerciseId, name: exerciseName, description: "" });
+      if (activeExercise.id === exerciseId) {
+        useExercise({ id: exerciseId, name: exerciseName, description: "" });
+      }
+      setExerciseName("");
+      navigation.goBack();
+    } else {
+      setExerciseNameErr(true);
     }
-    setExerciseName("");
-    navigation.goBack();
   };
 
   const showDeleteConfirm = () => {
@@ -108,10 +115,17 @@ export default function EditExercise({ navigation, route }: any) {
                 {/* @ts-ignore */}
                 <Dialog.Title>Edit exercise</Dialog.Title>
                 <Dialog.Content style={styles.container}>
+                  {/* @ts-ignore */}
+                  <HelperText type="error" visible={exerciseNameErr}>
+                    Exercise name is required
+                  </HelperText>
                   <TextInput
                     label="Exercise name"
                     value={exerciseName}
-                    onChangeText={(reps) => setExerciseName(reps)}
+                    onChangeText={(exercise) => {
+                      setExerciseNameErr(exercise.length === 0);
+                      setExerciseName(exercise);
+                    }}
                     style={styles.textBox}
                   />
                 </Dialog.Content>
