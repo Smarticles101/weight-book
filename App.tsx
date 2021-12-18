@@ -1,6 +1,10 @@
 import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+import analytics from "@react-native-firebase/analytics";
 
 import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
@@ -26,14 +30,44 @@ registerTranslation("en", en);
 const Stack = createNativeStackNavigator();
 
 // TODO:
-//  - review this https://reactnavigation.org/docs/typescript/
+//  - review ts-ignores
+
 function App() {
+  const routeNameRef = React.useRef();
+  const navigationRef = React.useRef();
+
   return (
     <ExerciseSetsProvider>
       <ExercisesProvider>
         <PaperProvider>
           <StatusBar style="auto" />
-          <NavigationContainer>
+          <NavigationContainer
+            /* @ts-ignore */
+            ref={navigationRef}
+            onReady={() => {
+              routeNameRef.current =
+                /* @ts-ignore */
+                navigationRef.current.getCurrentRoute().name;
+              analytics().logScreenView({
+                screen_name: routeNameRef.current,
+                screen_class: routeNameRef.current,
+              });
+            }}
+            onStateChange={async () => {
+              const previousRouteName = routeNameRef.current;
+              const currentRouteName =
+                /* @ts-ignore */
+                navigationRef.current.getCurrentRoute().name;
+
+              if (previousRouteName !== currentRouteName) {
+                await analytics().logScreenView({
+                  screen_name: currentRouteName,
+                  screen_class: currentRouteName,
+                });
+              }
+              routeNameRef.current = currentRouteName;
+            }}
+          >
             <Stack.Navigator
               initialRouteName="Exercises"
               screenOptions={{

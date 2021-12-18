@@ -11,6 +11,8 @@ import {
   UpdateSetCallback,
 } from "./types";
 
+import analytics from "@react-native-firebase/analytics";
+
 const database_version = 1;
 
 let database = SQLite.openDatabase("weightbook");
@@ -45,7 +47,6 @@ database.transaction((tx) => {
         } else if (results.rows.item(0).version !== database_version) {
           console.log("Database version mismatch");
           // TODO: update database schema
-          
         }
       });
     }
@@ -64,6 +65,7 @@ export function insertExercise(
   { name, description }: Exercise,
   callback: InsertExerciseCallback
 ) {
+  analytics().logEvent("insert_exercise", { name, description });
   database.transaction((tx) => {
     tx.executeSql(
       "insert into exercises (name, description) values (?, ?)",
@@ -81,6 +83,7 @@ export function updateExercise(
   { id, name, description }: IdExercise,
   callback: InsertExerciseCallback
 ) {
+  analytics().logEvent("update_exercise");
   database.transaction((tx) => {
     tx.executeSql(
       "update exercises set name = ?, description = ? where id = ?",
@@ -93,6 +96,7 @@ export function updateExercise(
 }
 
 export function deleteExercise(id: number, callback: Function) {
+  analytics().logEvent("delete_exercise");
   database.transaction((tx) => {
     tx.executeSql(`delete from sets where exerciseId = ?;`, [id]);
     tx.executeSql(`delete from exercises where id = ?;`, [id]);
@@ -128,6 +132,7 @@ export function insertSet(
   { reps, weight, timestamp, notes }: ExerciseSet,
   callback: InsertSetCallback
 ) {
+  analytics().logEvent("insert_set");
   database.transaction((tx) => {
     tx.executeSql(
       "insert into sets (exerciseId, reps, weight, timestamp, notes) values (?, ?, ?, ?, ?)",
@@ -152,6 +157,7 @@ export function updateSet(
   { id, reps, weight, notes, timestamp }: IdExerciseSet,
   callback: UpdateSetCallback
 ) {
+  analytics().logEvent("update_set");
   database.transaction((tx) => {
     tx.executeSql(
       "update sets set reps = ?, weight = ?, notes = ?, timestamp = ? where id is (?)",
@@ -164,6 +170,7 @@ export function updateSet(
 }
 
 export function deleteSet(setId: number, callback: Function) {
+  analytics().logEvent("delete_set");
   database.transaction((tx) => {
     tx.executeSql(
       "delete from sets where id is (?)",
