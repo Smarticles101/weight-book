@@ -38,13 +38,7 @@
     "plugins": [
       "@react-native-firebase/app",
       "@react-native-firebase/perf",
-      "@react-native-firebase/crashlytics",
-      [
-        "expo-ads-admob",
-        {
-          "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
-        }
-      ]
+      "@react-native-firebase/crashlytics"
     ]
   }
 }

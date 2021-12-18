@@ -1,5 +1,5 @@
 import crashlytics from "@react-native-firebase/crashlytics";
-import { AdMobBanner } from "expo-ads-admob";
+import { BannerAd, BannerAdSize } from "@react-native-admob/admob";
 import React from "react";
 import { Platform } from "react-native";
 
@@ -15,14 +15,7 @@ const adUnitID = __DEV__
 
 const Footer = () => {
   return (
-    <AdMobBanner
-      bannerSize="smartBannerPortrait"
-      adUnitID={adUnitID}
-      servePersonalizedAds
-      onDidFailToReceiveAdWithError={(err) => {
-        crashlytics().recordError(err);
-      }}
-    />
+    <BannerAd size={BannerAdSize.ADAPTIVE_BANNER} unitId={adUnitID || ""} />
   );
 };
 
