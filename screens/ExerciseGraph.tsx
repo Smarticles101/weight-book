@@ -38,21 +38,41 @@ const repsColor = "hsla(30, 50%, 50%, 0.75)";
 //     toFixed should use the precision of the number we are working towards
 //     but for now, we'll just use 0
 //
-//     Selectable graph plots, stack the data
-//     Color code the plot to each data set (use color instead of labels)
-//     Format better. Date on top, load, reps, weight on same line
-//
 //     Groupings of time, view individual months, weeks, etc.
 //     Should we limit the number of data points? and how?
+//
+//     This file is gross, can we clean it up?
+//
+//     Animations are weird in development
 
 export default function ExerciseGraph({ route, navigation }: any) {
   const { exerciseSets: unsortedSets } = useExerciseSets();
 
   const [exerciseSets, setExerciseSets] = useState(unsortedSets);
 
+  const [animating, setAnimating] = useState(false);
+
   const [weightToggle, setWeightToggle] = useState(true);
   const [repsToggle, setRepsToggle] = useState(true);
   const [loadToggle, setLoadToggle] = useState(true);
+
+  const avgReps = unsortedSets.reduce((acc, curr) => {
+    return acc + curr.reps;
+  }, 0) / unsortedSets.length;
+
+  const avgWeight = unsortedSets.reduce((acc, curr) => {
+    return acc + curr.weight;
+  }, 0) / unsortedSets.length;
+
+  const avgLoad = avgReps * avgWeight;
+
+  const minDate = new Date(
+    Math.min(...unsortedSets.map((set) => set.timestamp.valueOf()))
+  );
+
+  const maxDate = new Date(
+    Math.max(...unsortedSets.map((set) => set.timestamp.valueOf()))
+  );
 
   const toggleWeight = () => setWeightToggle(!weightToggle);
   const toggleReps = () => setRepsToggle(!repsToggle);
@@ -115,7 +135,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
     let date = new Date(Math.round(timestamp.value));
 
     return {
-      text: `${date.toLocaleDateString()}`,
+      text: `${date.toLocaleDateString()}`
     } as any;
   }, [width, exerciseSets]);
 
@@ -170,8 +190,14 @@ export default function ExerciseGraph({ route, navigation }: any) {
   return (
     <PanGestureHandler
       onGestureEvent={onGestureEvent}
-      onBegan={() => (opacity.value = withTiming(1))}
-      onEnded={() => (opacity.value = withTiming(0))}
+      onBegan={() => {
+        setAnimating(true);
+        opacity.value = withTiming(1);
+      }}
+      onEnded={() => {
+        setAnimating(false);
+        opacity.value = withTiming(0);
+      }}
     >
       <Animated.View style={{ padding: 10 }}>
         <View
@@ -189,12 +215,14 @@ export default function ExerciseGraph({ route, navigation }: any) {
             >
               Weight
             </Chip>
-            {weightToggle && (
+            {weightToggle && (animating?
               <AnimatedTextInput
                 editable={false}
                 style={{ color: weightColor }}
                 animatedProps={animatedWeightProps}
               />
+              :
+              <TextInput editable={false} style={{ color: weightColor }}>{avgWeight.toFixed(0)}lbs</TextInput>
             )}
           </View>
           <View style={{ flex: 1 }}>
@@ -205,12 +233,14 @@ export default function ExerciseGraph({ route, navigation }: any) {
             >
               Reps
             </Chip>
-            {repsToggle && (
+            {repsToggle && (animating?
               <AnimatedTextInput
                 editable={false}
                 style={{ color: repsColor }}
                 animatedProps={animatedRepsProps}
               />
+              :
+              <TextInput editable={false} style={{ color: repsColor }}>{avgReps.toFixed(0)}</TextInput>
             )}
           </View>
           <View style={{ flex: 1 }}>
@@ -221,20 +251,26 @@ export default function ExerciseGraph({ route, navigation }: any) {
             >
               Load
             </Chip>
-            {loadToggle && (
+            {loadToggle && (animating?
               <AnimatedTextInput
                 editable={false}
                 style={{ color: loadColor }}
                 animatedProps={animatedLoadProps}
               />
+              :
+              <TextInput editable={false} style={{ color: loadColor }}>{avgLoad.toFixed(0)}lbs</TextInput>
             )}
           </View>
         </View>
         <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+          {animating?
           <AnimatedTextInput
             editable={false}
             animatedProps={animatedDateProps}
           />
+          :
+          <TextInput editable={false}>{minDate.toLocaleDateString()}-{maxDate.toLocaleDateString()}</TextInput>
+          }
         </View>
 
         <View style={{ height: 200, width: width }}>
