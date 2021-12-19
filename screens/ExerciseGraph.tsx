@@ -16,7 +16,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { TextInput, View } from "react-native";
-import { Chip } from "react-native-paper";
+import { Chip, Paragraph } from "react-native-paper";
 import CustomLineChart from "../components/chart/IndividuallyScaledLineChart";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
@@ -188,6 +188,14 @@ export default function ExerciseGraph({ route, navigation }: any) {
 
     _touchX.value = withSpring(x, spring);
   };
+
+  if (exerciseSets.length <= 1) {
+    return (
+      <View style={{ flex: 1, alignItems: "center" }}>
+        <Paragraph>Log at least 2 sets to see your charts</Paragraph>
+      </View>
+    );
+  }
 
   return (
     <PanGestureHandler
