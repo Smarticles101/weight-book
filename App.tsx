@@ -1,12 +1,10 @@
 import * as React from "react";
-import {
-  NavigationContainer,
-} from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import analytics from "@react-native-firebase/analytics";
 
-import { Provider as PaperProvider } from "react-native-paper";
+import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 
 import ExerciseSetsProvider from "./data/exerciseSetsProvider";
@@ -29,6 +27,15 @@ registerTranslation("en", en);
 
 const Stack = createNativeStackNavigator();
 
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    card: DefaultTheme.colors.surface,
+    border: DefaultTheme.colors.accent,
+  },
+};
+
 // TODO:
 //  - review ts-ignores
 
@@ -39,9 +46,10 @@ function App() {
   return (
     <ExerciseSetsProvider>
       <ExercisesProvider>
-        <PaperProvider>
+        <PaperProvider theme={theme}>
           <StatusBar style="auto" />
           <NavigationContainer
+            theme={theme}
             /* @ts-ignore */
             ref={navigationRef}
             onReady={() => {
