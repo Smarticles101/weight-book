@@ -40,7 +40,7 @@ export default function ExerciseLog({ route, navigation }: any) {
 
     if (exerciseSets.length > 0) {
       // autofill most recent set for adding
-      const lastSet = exerciseSets[0];
+      const lastSet = exerciseSets[exerciseSets.length - 1];
 
       reps = lastSet.reps.toString();
       weight = lastSet.weight.toString();
