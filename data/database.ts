@@ -17,7 +17,7 @@ const database_version = 1;
 
 let database = SQLite.openDatabase("weightbook");
 
-// TODO: 
+// TODO:
 // - transpose this logic into a function
 // - make async?
 // - call in App.tsx, display loading while waiting
@@ -97,13 +97,16 @@ export function updateExercise(
 
 export function deleteExercise(id: number, callback: Function) {
   analytics().logEvent("delete_exercise");
-  database.transaction((tx) => {
-    tx.executeSql(`delete from sets where exerciseId = ?;`, [id]);
-    tx.executeSql(`delete from exercises where id = ?;`, [id]);
-  }, (error) => {
-  }, () => {
-    callback(id);
-  });
+  database.transaction(
+    (tx) => {
+      tx.executeSql(`delete from sets where exerciseId = ?;`, [id]);
+      tx.executeSql(`delete from exercises where id = ?;`, [id]);
+    },
+    (error) => {},
+    () => {
+      callback(id);
+    }
+  );
 }
 
 export function getSets(exerciseId: number, callback: GetSetsCallback) {

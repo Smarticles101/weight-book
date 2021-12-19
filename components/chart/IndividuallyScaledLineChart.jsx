@@ -9,7 +9,7 @@ class IndividuallyScaledLineChart extends ChartGrouped {
     const lines = data.map((line) => {
       let yMin = Math.min(...line.map((d) => d.y));
       let yMax = Math.max(...line.map((d) => d.y));
-      
+
       return shape
         .line()
         .x((d) => x(d.x))
