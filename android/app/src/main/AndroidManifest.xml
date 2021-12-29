@@ -33,6 +33,7 @@
         <data android:scheme="exp+weight-book"/>
         <data android:scheme="exp+weight-book"/>
         <data android:scheme="exp+weight-book"/>
+        <data android:scheme="exp+weight-book"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity"/>
