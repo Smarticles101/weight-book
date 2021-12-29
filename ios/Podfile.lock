@@ -61,6 +61,8 @@ PODS:
   - EXSQLite (10.0.3):
     - ExpoModulesCore
   - EXStructuredHeaders (2.0.0)
+  - EXTrackingTransparency (2.0.3):
+    - ExpoModulesCore
   - EXUpdates (0.10.15):
     - EXManifests
     - ExpoModulesCore
@@ -536,6 +538,7 @@ DEPENDENCIES:
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - EXSQLite (from `../node_modules/expo-sqlite/ios`)
   - EXStructuredHeaders (from `../node_modules/expo-structured-headers/ios`)
+  - EXTrackingTransparency (from `../node_modules/expo-tracking-transparency/ios`)
   - EXUpdates (from `../node_modules/expo-updates/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -636,6 +639,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-sqlite/ios"
   EXStructuredHeaders:
     :path: "../node_modules/expo-structured-headers/ios"
+  EXTrackingTransparency:
+    :path: "../node_modules/expo-tracking-transparency/ios"
   EXUpdates:
     :path: "../node_modules/expo-updates/ios"
   EXUpdatesInterface:
@@ -737,6 +742,7 @@ SPEC CHECKSUMS:
   EXSplashScreen: 57f329dbf25c5c12800feed79068a056453dc772
   EXSQLite: c92069495c1c84a27e9d681ddff826dea3314482
   EXStructuredHeaders: 873e7f329c2f6279c1b1e0229df59c9861560b53
+  EXTrackingTransparency: fd96c432c2441b5fb10ed33a5331d534c75a1c3c
   EXUpdates: 061b67c33f0e7f8fd335bbb48697c4a4fc8a5157
   EXUpdatesInterface: e1c01b4f5ec76bd1d6cc714938f9edf5ef6379b9
   FBLazyVector: c71c5917ec0ad2de41d5d06a5855f6d5eda06971

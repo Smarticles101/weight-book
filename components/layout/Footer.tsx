@@ -1,7 +1,7 @@
-import crashlytics from "@react-native-firebase/crashlytics";
 import { BannerAd, BannerAdSize } from "@react-native-admob/admob";
 import React from "react";
 import { Platform } from "react-native";
+import { useTrackingPermissions } from "expo-tracking-transparency";
 
 const adUnitID = __DEV__
   ? Platform.select({
@@ -14,8 +14,14 @@ const adUnitID = __DEV__
     });
 
 const Footer = () => {
+  const [status] = useTrackingPermissions();
+
   return (
-    <BannerAd size={BannerAdSize.ADAPTIVE_BANNER} unitId={adUnitID || ""} />
+    <BannerAd
+      size={BannerAdSize.ADAPTIVE_BANNER}
+      unitId={adUnitID || ""}
+      requestOptions={{ requestNonPersonalizedAdsOnly: !status?.granted }}
+    />
   );
 };
 

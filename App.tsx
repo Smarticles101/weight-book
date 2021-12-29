@@ -22,6 +22,7 @@ import EditExercise from "./screens/EditExercise";
 
 import { en, registerTranslation } from "react-native-paper-dates";
 import Exercise from "./screens/Exercise";
+import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 
 registerTranslation("en", en);
 
@@ -40,6 +41,15 @@ const theme = {
 //  - review ts-ignores
 
 function App() {
+  React.useEffect(() => {
+    (async () => {
+      const { status } = await requestTrackingPermissionsAsync();
+      if (status === "granted") {
+        console.log("Yay! I have user permission to track data");
+      }
+    })();
+  }, []);
+
   const routeNameRef = React.useRef();
   const navigationRef = React.useRef();
 
