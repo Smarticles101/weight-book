@@ -6,6 +6,7 @@ export type Exercise = {
 // Exercise with an id
 export type IdExercise = Exercise & {
   id: number;
+  timestamp?: Date;
 };
 
 export type GetExercisesCallback = (exercises: IdExercise[]) => void;

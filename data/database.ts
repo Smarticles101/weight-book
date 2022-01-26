@@ -55,9 +55,27 @@ database.transaction((tx) => {
 
 export function getExercises(callback: GetExercisesCallback) {
   database.transaction((tx) => {
-    tx.executeSql("select * from exercises", undefined, (_, { rows }) => {
-      callback(rows._array);
-    });
+    // select all exercises joined with most recent set timestamp
+    tx.executeSql(
+      `select e.id, e.name, e.description, s.timestamp from exercises e left join (select exerciseId, MAX(timestamp) timestamp from sets group by exerciseId) s on e.id = s.exerciseId order by s.timestamp asc;`,
+      [],
+      (tx, results) => {
+        const exercises: IdExercise[] = [];
+        for (let i = 0; i < results.rows.length; i++) {
+          const row = results.rows.item(i);
+          const exercise: IdExercise = {
+            id: row.id,
+            name: row.name,
+            description: row.description,
+          };
+          if (row.timestamp !== null) {
+            exercise.timestamp = new Date(row.timestamp);
+          }
+          exercises.push(exercise);
+        }
+        callback(exercises);
+      }
+    );
   });
 }
 

@@ -25,6 +25,9 @@ export default function Exercises({ navigation }: any) {
           renderItem={({ item }) => (
             <List.Item
               title={item.name}
+              description={
+                item.timestamp ? item.timestamp.toLocaleDateString() : ""
+              }
               onPress={() => {
                 useExercise(item);
                 navigation.push("Exercise Log", {
