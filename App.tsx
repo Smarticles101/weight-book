@@ -40,6 +40,10 @@ const theme = {
 // TODO:
 //  - review ts-ignores
 
+if (__DEV__) {
+  analytics().setAnalyticsCollectionEnabled(false);
+}
+
 function App() {
   React.useEffect(() => {
     (async () => {
