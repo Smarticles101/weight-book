@@ -16,11 +16,19 @@ const adUnitID = __DEV__
 const Footer = () => {
   const [status] = useTrackingPermissions();
 
+  if (__DEV__) {
+    return null;
+  }
+
   return (
     <BannerAd
       size={BannerAdSize.ADAPTIVE_BANNER}
       unitId={adUnitID || ""}
-      requestOptions={{ requestNonPersonalizedAdsOnly: !status?.granted }}
+      requestOptions={{
+        requestNonPersonalizedAdsOnly: !status?.granted,
+        networkExtras: { suppress_test_label: "1" },
+      }}
+      onAdFailedToLoad={(error) => console.warn(error)}
     />
   );
 };
