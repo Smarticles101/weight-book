@@ -6,8 +6,11 @@ import * as scale from "d3-scale";
 import { Line } from "react-native-svg";
 import {
   GestureEvent,
+  LongPressGestureHandler,
   PanGestureHandler,
   PanGestureHandlerEventPayload,
+  State,
+  TapGestureHandler,
 } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedProps,
@@ -20,14 +23,6 @@ import { Chip, Paragraph } from "react-native-paper";
 import CustomLineChart from "../components/chart/IndividuallyScaledLineChart";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
-const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
-Animated.addWhitelistedNativeProps({ text: true });
-
-const spring = {
-  overshootClamping: true,
-  stiffness: 300,
-  damping: 20,
-};
 
 // analogous colors
 const loadColor = "hsla(60, 50%, 50%, 0.75)";
@@ -47,38 +42,13 @@ const repsColor = "hsla(30, 50%, 50%, 0.75)";
 
 export default function ExerciseGraph({ route, navigation }: any) {
   const { exerciseSets: unsortedSets } = useExerciseSets();
+  const panRef = React.useRef();
+  const longPressRef = React.useRef();
+  const tapRef = React.useRef();
 
   const [exerciseSets, setExerciseSets] = useState(unsortedSets);
 
-  const [animating, setAnimating] = useState(false);
-
-  const [weightToggle, setWeightToggle] = useState(true);
-  const [repsToggle, setRepsToggle] = useState(true);
-  const [loadToggle, setLoadToggle] = useState(true);
-
-  const avgReps =
-    unsortedSets.reduce((acc, curr) => {
-      return acc + curr.reps;
-    }, 0) / unsortedSets.length;
-
-  const avgWeight =
-    unsortedSets.reduce((acc, curr) => {
-      return acc + curr.weight;
-    }, 0) / unsortedSets.length;
-
-  const avgLoad = avgReps * avgWeight;
-
-  const minDate = new Date(
-    Math.min(...unsortedSets.map((set) => set.timestamp.valueOf()))
-  );
-
-  const maxDate = new Date(
-    Math.max(...unsortedSets.map((set) => set.timestamp.valueOf()))
-  );
-
-  const toggleWeight = () => setWeightToggle(!weightToggle);
-  const toggleReps = () => setRepsToggle(!repsToggle);
-  const toggleLoad = () => setLoadToggle(!loadToggle);
+  const [panning, setPanning] = useState(false);
 
   const [data, setData] = useState<any[]>([]);
 
@@ -91,36 +61,25 @@ export default function ExerciseGraph({ route, navigation }: any) {
 
   useEffect(() => {
     let newData = [];
-    if (weightToggle) {
-      newData.push({
-        data: exerciseSets.map((set) => set.weight),
-        svg: { stroke: weightColor, strokeWidth: 5 },
-      });
-    }
-    if (repsToggle) {
-      newData.push({
-        data: exerciseSets.map((set) => set.reps),
-        svg: { stroke: repsColor, strokeWidth: 5 },
-      });
-    }
-    if (loadToggle) {
-      newData.push({
-        data: exerciseSets.map((set) => set.weight * set.reps),
-        svg: { stroke: loadColor, strokeWidth: 5 },
-      });
-    }
+    newData.push({
+      data: exerciseSets.map((set) => set.weight),
+      svg: { stroke: weightColor, strokeWidth: 5 },
+    });
+    newData.push({
+      data: exerciseSets.map((set) => set.reps),
+      svg: { stroke: repsColor, strokeWidth: 5 },
+    });
+    newData.push({
+      data: exerciseSets.map((set) => set.weight * set.reps),
+      svg: { stroke: loadColor, strokeWidth: 5 },
+    });
     setData(newData);
-  }, [exerciseSets, weightToggle, repsToggle, loadToggle]);
+  }, [exerciseSets]);
 
   const [width, setWidth] = useState(-1);
 
   const _touchX = useSharedValue(0);
   const opacity = useSharedValue(0);
-
-  const load = useSharedValue(0);
-  const reps = useSharedValue(0);
-  const weight = useSharedValue(0);
-  const timestamp = useSharedValue(0);
 
   const animatedProps = useAnimatedProps(() => {
     let x1 = _touchX.value;
@@ -133,43 +92,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
     };
   }, [width, exerciseSets]);
 
-  const animatedDateProps = useAnimatedProps(() => {
-    let date = new Date(Math.round(timestamp.value));
-
-    return {
-      text: `${date.toLocaleDateString()}`,
-    } as any;
-  }, [width, exerciseSets]);
-
-  const animatedLoadProps = useAnimatedProps(
-    () =>
-      ({
-        text: `${load.value.toFixed(0)}lbs`,
-      } as any),
-    [width, exerciseSets]
-  );
-
-  const animatedRepsProps = useAnimatedProps(
-    () =>
-      ({
-        text: `${reps.value.toFixed(0)}`,
-      } as any),
-    [width, exerciseSets]
-  );
-
-  const animatedWeightProps = useAnimatedProps(
-    () =>
-      ({
-        text: `${weight.value.toFixed(0)}lbs`,
-      } as any),
-    [width, exerciseSets]
-  );
-
-  const onGestureEvent = (
-    event: GestureEvent<PanGestureHandlerEventPayload>
-  ) => {
-    let x = event.nativeEvent.x;
-
+  const snap = (x: number) => {
     if (width != -1) {
       let xSnap = width / (exerciseSets.length - 1);
       let ind = Math.round(x / xSnap);
@@ -177,16 +100,15 @@ export default function ExerciseGraph({ route, navigation }: any) {
       // snap x1 and x2 to the nearest xSnap
       x = ind * xSnap;
       let set = exerciseSets[ind];
-
-      if (set) {
-        load.value = withSpring(set.weight * set.reps, spring);
-        reps.value = withSpring(set.reps, spring);
-        weight.value = withSpring(set.weight, spring);
-        timestamp.value = withSpring(set.timestamp.valueOf(), spring);
-      }
     }
 
-    _touchX.value = withSpring(x, spring);
+    _touchX.value = x;
+  };
+
+  const onPanEvent = (event: GestureEvent<PanGestureHandlerEventPayload>) => {
+    if (panning) {
+      snap(event.nativeEvent.x);
+    }
   };
 
   if (exerciseSets.length <= 1) {
@@ -198,123 +120,71 @@ export default function ExerciseGraph({ route, navigation }: any) {
   }
 
   return (
+    // hold and drag to pan across data points, otherwise tap to select
+    // or pan to change visible range
+
+    // TODO:
+    //     how do we pan across the date range?
+    //     once that's found out, we can figure out if we need to use a fling gesture handler too.
+    //
+    //     instead of showing the data as text, lets use some kind of window with the svg
     <PanGestureHandler
-      onGestureEvent={onGestureEvent}
+      ref={panRef}
+      simultaneousHandlers={longPressRef}
+      onGestureEvent={onPanEvent}
       onBegan={() => {
-        setAnimating(true);
-        opacity.value = withTiming(1);
+        if (panning) {
+          opacity.value = 1;
+        } else {
+          opacity.value = 0;
+        }
       }}
       onEnded={() => {
-        setAnimating(false);
-        opacity.value = withTiming(0);
+        opacity.value = 0;
       }}
     >
-      <Animated.View style={{ padding: 10 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            padding: 10,
+      <LongPressGestureHandler
+        ref={longPressRef}
+        simultaneousHandlers={panRef}
+        onHandlerStateChange={({ nativeEvent }) => {
+          if (nativeEvent.state === State.ACTIVE) {
+            setPanning(true);
+          } else if (nativeEvent.state === State.END) {
+            setPanning(false);
+          }
+        }}
+      >
+        <TapGestureHandler
+          ref={tapRef}
+          onHandlerStateChange={({ nativeEvent }) => {
+            if (nativeEvent.state === State.ACTIVE) {
+              snap(nativeEvent.x);
+              opacity.value = 1;
+            }
           }}
         >
-          <View style={{ flex: 1 }}>
-            <Chip
-              selected={weightToggle}
-              onPress={toggleWeight}
-              style={{ height: 32 }}
+          <Animated.View style={{ height: 200, width: width }}>
+            <CustomLineChart
+              style={{ flex: 1 }}
+              data={data}
+              contentInset={{ top: 30, bottom: 30 }}
+              curve={shape.curveLinear}
+              yScale={scale.scaleLinear}
+              animate
             >
-              Weight
-            </Chip>
-            {weightToggle &&
-              (animating ? (
-                <AnimatedTextInput
-                  editable={false}
-                  style={{ color: weightColor }}
-                  animatedProps={animatedWeightProps}
-                />
-              ) : (
-                <TextInput editable={false} style={{ color: weightColor }}>
-                  {avgWeight.toFixed(0)}lbs
-                </TextInput>
-              ))}
-          </View>
-          <View style={{ flex: 1 }}>
-            <Chip
-              selected={repsToggle}
-              onPress={toggleReps}
-              style={{ height: 32 }}
-            >
-              Reps
-            </Chip>
-            {repsToggle &&
-              (animating ? (
-                <AnimatedTextInput
-                  editable={false}
-                  style={{ color: repsColor }}
-                  animatedProps={animatedRepsProps}
-                />
-              ) : (
-                <TextInput editable={false} style={{ color: repsColor }}>
-                  {avgReps.toFixed(0)}
-                </TextInput>
-              ))}
-          </View>
-          <View style={{ flex: 1 }}>
-            <Chip
-              selected={loadToggle}
-              onPress={toggleLoad}
-              style={{ height: 32 }}
-            >
-              Load
-            </Chip>
-            {loadToggle &&
-              (animating ? (
-                <AnimatedTextInput
-                  editable={false}
-                  style={{ color: loadColor }}
-                  animatedProps={animatedLoadProps}
-                />
-              ) : (
-                <TextInput editable={false} style={{ color: loadColor }}>
-                  {avgLoad.toFixed(0)}lbs
-                </TextInput>
-              ))}
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-          {animating ? (
-            <AnimatedTextInput
-              editable={false}
-              animatedProps={animatedDateProps}
-            />
-          ) : (
-            <TextInput editable={false}>
-              {minDate.toLocaleDateString()}-{maxDate.toLocaleDateString()}
-            </TextInput>
-          )}
-        </View>
+              <WidthSetter setWidth={setWidth} />
+              <Grid />
 
-        <View style={{ height: 200, width: width }}>
-          <CustomLineChart
-            style={{ flex: 1 }}
-            data={data}
-            contentInset={{ top: 30, bottom: 30 }}
-            curve={shape.curveLinear}
-            yScale={scale.scaleLinear}
-            animate
-          >
-            <WidthSetter setWidth={setWidth} />
-            <Grid />
-
-            <AnimatedLine
-              animatedProps={animatedProps}
-              y1="0"
-              y2="200"
-              strokeWidth="2"
-            />
-          </CustomLineChart>
-        </View>
-      </Animated.View>
+              <AnimatedLine
+                animatedProps={animatedProps}
+                y1="0"
+                y2="200"
+                strokeWidth="2"
+              />
+            </CustomLineChart>
+          </Animated.View>
+        </TapGestureHandler>
+      </LongPressGestureHandler>
     </PanGestureHandler>
   );
 }
