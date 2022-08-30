@@ -11,6 +11,8 @@ import {
   UpdateSetCallback,
 } from "./types";
 
+import { faker } from "@faker-js/faker";
+
 import analytics from "@react-native-firebase/analytics";
 
 const database_version = 1;
@@ -52,6 +54,49 @@ database.transaction((tx) => {
     }
   );
 });
+
+export function generateDevData() {
+  if (__DEV__) {
+    getExercises((exercises) => {
+      if (exercises.length === 0) {
+        insertExercise({ name: "Squat", description: "Squat" }, ({ id }) => {
+          let sets: any[] = [];
+          for (let i = 0; i < 400; i++) {
+            sets.push({
+              reps: faker.datatype.number({ min: 5, max: 20 }),
+              weight: faker.datatype.number({ min: 50, max: 100 }),
+            });
+          }
+
+          sets = sets.sort((b, a) => a.reps * a.weight - b.reps * b.weight);
+
+          faker.date
+            .betweens(
+              "2020-01-01T00:00:00.000Z",
+              "2025-01-01T00:00:00.000Z",
+              100
+            )
+            .forEach((date) => {
+              for (let i = 0; i < 4; i++) {
+                date.setSeconds(i * 10);
+                const { reps, weight } = sets.pop();
+                insertSet(
+                  id,
+                  {
+                    reps,
+                    weight,
+                    timestamp: date,
+                    notes: faker.lorem.sentence(),
+                  },
+                  () => {}
+                );
+              }
+            });
+        });
+      }
+    });
+  }
+}
 
 export function getExercises(callback: GetExercisesCallback) {
   database.transaction((tx) => {
