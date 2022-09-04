@@ -46,7 +46,11 @@ export default function Exercise({ route, navigation }: any) {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Log" component={ExerciseLog} />
-      <Tab.Screen name="Analytics" component={ExerciseGraph} />
+      <Tab.Screen
+        name="Analytics"
+        component={ExerciseGraph}
+        initialParams={{ screenDateLengthMs: 31536000000 }}
+      />
     </Tab.Navigator>
   );
 }

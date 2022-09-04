@@ -63,7 +63,7 @@ export function generateDevData() {
           let sets: any[] = [];
           for (let i = 0; i < 400; i++) {
             sets.push({
-              reps: faker.datatype.number({ min: 5, max: 20 }),
+              reps: faker.datatype.number({ min: 8, max: 12 }),
               weight: faker.datatype.number({ min: 50, max: 100 }),
             });
           }
@@ -73,12 +73,12 @@ export function generateDevData() {
           faker.date
             .betweens(
               "2020-01-01T00:00:00.000Z",
-              "2025-01-01T00:00:00.000Z",
+              "2022-01-01T00:00:00.000Z",
               100
             )
             .forEach((date) => {
               for (let i = 0; i < 4; i++) {
-                date.setSeconds(i * 10);
+                date.setMinutes(i);
                 const { reps, weight } = sets.pop();
                 insertSet(
                   id,
