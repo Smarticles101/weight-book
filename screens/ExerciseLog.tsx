@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { SectionList, StyleSheet } from "react-native";
+import { SectionList, StyleSheet, View } from "react-native";
 
-import { DataTable, FAB, List } from "react-native-paper";
+import { DataTable, FAB, List, Paragraph } from "react-native-paper";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { IdExerciseSet } from "../data/types";
 
@@ -110,6 +110,12 @@ export default function ExerciseLog({ route, navigation }: any) {
             )}
           />
         </DataTable>
+
+        {exerciseSets.length === 0 && (
+          <View style={{ flex: 1, alignItems: "center" }}>
+            <Paragraph>Click the plus to log your first set!</Paragraph>
+          </View>
+        )}
 
         <FAB style={styles.fab} icon="plus" onPress={addSet} />
       </>
