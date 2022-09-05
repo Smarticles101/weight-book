@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
-import { FAB, List } from "react-native-paper";
+import { FAB, List, Paragraph } from "react-native-paper";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { useExercises } from "../data/exercisesProvider";
 
@@ -39,6 +39,12 @@ export default function Exercises({ navigation }: any) {
           )}
           keyExtractor={(item) => item.id.toString()}
         />
+
+        {exercises.length === 0 && (
+          <View style={{ flex: 1, alignItems: "center" }}>
+            <Paragraph>Click the plus to create your first exercise!</Paragraph>
+          </View>
+        )}
 
         <FAB style={styles.fab} icon="plus" onPress={showDialog} />
       </>
