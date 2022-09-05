@@ -22,6 +22,9 @@
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3845309455501477~3834632831"
+      },
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."
       }
     },
     "android": {
@@ -45,6 +48,11 @@
           "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "51659574-9cd1-4457-925c-f2b3c711de5e"
+      }
+    }
   }
 }

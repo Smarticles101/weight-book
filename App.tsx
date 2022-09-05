@@ -23,6 +23,7 @@ import EditExercise from "./screens/EditExercise";
 import { en, registerTranslation } from "react-native-paper-dates";
 import Exercise from "./screens/Exercise";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
+import { generateDevData } from "./data/database";
 
 registerTranslation("en", en);
 
@@ -42,6 +43,7 @@ const theme = {
 
 if (__DEV__) {
   analytics().setAnalyticsCollectionEnabled(false);
+  generateDevData();
 }
 
 function App() {
