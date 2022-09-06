@@ -24,6 +24,7 @@ import { en, registerTranslation } from "react-native-paper-dates";
 import Exercise from "./screens/Exercise";
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 import { generateDevData } from "./data/database";
+import mobileAds from "react-native-google-mobile-ads";
 
 registerTranslation("en", en);
 
@@ -54,6 +55,12 @@ function App() {
         console.log("Yay! I have user permission to track data");
       }
     })();
+
+    mobileAds()
+      .initialize()
+      .then((adapterStatuses) => {
+        // Initialization complete!
+      });
   }, []);
 
   const routeNameRef = React.useRef();

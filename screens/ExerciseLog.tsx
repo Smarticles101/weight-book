@@ -78,9 +78,7 @@ export default function ExerciseLog({ route, navigation }: any) {
             sections={exerciseSetsByDay}
             keyExtractor={(item) => item.id.toString()}
             renderSectionHeader={({ section: { day } }) => (
-              <List.Subheader onPressIn onPressOut>
-                {day}
-              </List.Subheader>
+              <List.Subheader>{day}</List.Subheader>
             )}
             renderItem={({ item }) => (
               <>

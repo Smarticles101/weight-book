@@ -20,9 +20,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "me.loganstucki.weightbook",
       "googleServicesFile": "./GoogleService-Info.plist",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3845309455501477~3834632831"
-      },
       "infoPlist": {
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."
       }
@@ -31,9 +28,6 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      },
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3845309455501477~3647688747"
       },
       "package": "me.loganstucki.weightbook",
       "googleServicesFile": "./google-services.json"
@@ -47,6 +41,14 @@
         {
           "userTrackingPermission": "This identifier will be used to deliver personalized ads to you."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
       ]
     ],
     "extra": {
@@ -54,5 +56,9 @@
         "projectId": "51659574-9cd1-4457-925c-f2b3c711de5e"
       }
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-3845309455501477~3647688747",
+    "ios_app_id": "ca-app-pub-3845309455501477~3834632831"
   }
 }
