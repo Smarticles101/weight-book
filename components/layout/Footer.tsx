@@ -1,7 +1,7 @@
-import { BannerAd, BannerAdSize } from "@react-native-admob/admob";
 import React from "react";
 import { Platform } from "react-native";
 import { useTrackingPermissions } from "expo-tracking-transparency";
+import { BannerAd, BannerAdSize } from "react-native-google-mobile-ads";
 
 const adUnitID = __DEV__
   ? Platform.select({
@@ -22,7 +22,7 @@ const Footer = () => {
 
   return (
     <BannerAd
-      size={BannerAdSize.ADAPTIVE_BANNER}
+      size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
       unitId={adUnitID || ""}
       requestOptions={{
         requestNonPersonalizedAdsOnly: !status?.granted,
