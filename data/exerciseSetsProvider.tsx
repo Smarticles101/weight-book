@@ -23,17 +23,21 @@ export default function ExerciseSetsProvider({ children }: any) {
       case "SET_SETS":
         return action.payload;
       case "ADD_SET":
-        return [...state, action.payload];
+        return [...state, action.payload].sort(
+          (a, b) => b.timestamp.valueOf() - a.timestamp.valueOf()
+        );
       case "EDIT_SET":
-        return state.map((set: any) => {
-          if (set.id === action.payload.id) {
-            return {
-              ...set,
-              ...action.payload,
-            };
-          }
-          return set;
-        });
+        return state
+          .map((set: any) => {
+            if (set.id === action.payload.id) {
+              return {
+                ...set,
+                ...action.payload,
+              };
+            }
+            return set;
+          })
+          .sort((a, b) => b.timestamp.valueOf() - a.timestamp.valueOf());
       case "REMOVE_SET":
         return state.filter((set: any) => set.id !== action.payload);
       default:

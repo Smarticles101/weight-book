@@ -15,7 +15,7 @@ import { faker } from "@faker-js/faker";
 
 import analytics from "@react-native-firebase/analytics";
 
-const database_version = 1;
+const database_version = 2;
 
 let database = SQLite.openDatabase("weightbook");
 
@@ -48,7 +48,28 @@ database.transaction((tx) => {
           );
         } else if (results.rows.item(0).version !== database_version) {
           console.log("Database version mismatch");
-          // TODO: update database schema
+          tx.executeSql(
+            `select s.id, s.exerciseId, s.reps, s.weight, s.timestamp, s.notes, e.name, e.description from sets s join exercises e on s.exerciseId = e.id;`,
+            [],
+            (tx, results) => {
+              const sets = results.rows._array;
+              for (const set of sets) {
+                if (typeof set.timestamp === "number") {
+                  // update timestamp to be a string
+                  set.timestamp = new Date(set.timestamp);
+                  updateSet(set, () => {});
+                }
+              }
+
+              tx.executeSql(
+                `update metadata set version = ?;`,
+                [database_version],
+                () => {
+                  console.log("Database updated");
+                }
+              );
+            }
+          );
         }
       });
     }
@@ -102,7 +123,7 @@ export function getExercises(callback: GetExercisesCallback) {
   database.transaction((tx) => {
     // select all exercises joined with most recent set timestamp
     tx.executeSql(
-      `select e.id, e.name, e.description, s.timestamp from exercises e left join (select exerciseId, MAX(timestamp) timestamp from sets group by exerciseId) s on e.id = s.exerciseId order by s.timestamp desc;`,
+      `select e.id, e.name, e.description, s.timestamp from exercises e left join (select exerciseId, MAX(timestamp) timestamp from sets group by exerciseId) s on e.id = s.exerciseId order by julianday(s.timestamp) desc;`,
       [],
       (tx, results) => {
         const exercises: IdExercise[] = [];
@@ -175,7 +196,7 @@ export function deleteExercise(id: number, callback: Function) {
 export function getSets(exerciseId: number, callback: GetSetsCallback) {
   database.transaction((tx) => {
     tx.executeSql(
-      "select * from sets where exerciseId is (?)",
+      "select * from sets where exerciseId is (?) order by julianday(timestamp) desc",
       [exerciseId],
       (_, { rows }) => {
         let sets = rows._array.map((set) => ({
@@ -227,7 +248,7 @@ export function updateSet(
   database.transaction((tx) => {
     tx.executeSql(
       "update sets set reps = ?, weight = ?, notes = ?, timestamp = ? where id is (?)",
-      [reps, weight, notes, timestamp.valueOf(), id],
+      [reps, weight, notes, timestamp.toISOString(), id],
       (_, { rows }) => {
         callback({ id, reps, weight, notes, timestamp });
       }

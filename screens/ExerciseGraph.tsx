@@ -37,7 +37,7 @@ const repsColor = "hsla(30, 50%, 50%, 1)";
 const repsFill = "hsla(30, 50%, 50%, 0.2)";
 
 export default function ExerciseGraph({ route, navigation }: any) {
-  const { exerciseSets: unsortedSets } = useExerciseSets();
+  const exerciseSets = useExerciseSets().exerciseSets.reverse();
   const panRef = React.useRef();
 
   const onLayout = useCallback((event) => {
@@ -45,8 +45,6 @@ export default function ExerciseGraph({ route, navigation }: any) {
     setScreenWidth(width);
     setScreenHeight(height);
   }, []);
-
-  const [exerciseSets, setExerciseSets] = useState(unsortedSets);
 
   let [filteredSets, setFilteredSets] = useState<{
     [key: string]: IdExerciseSet[];
@@ -66,23 +64,16 @@ export default function ExerciseGraph({ route, navigation }: any) {
   const [avgLoad, setAvgLoad] = useState(0);
 
   const [minDate, setMinDate] = useState(
-    new Date(Math.min(...unsortedSets.map((set) => set.timestamp.valueOf())))
+    new Date(Math.min(...exerciseSets.map((set) => set.timestamp.valueOf())))
   );
 
   const maxDate = new Date(
-    Math.max(...unsortedSets.map((set) => set.timestamp.valueOf()))
+    Math.max(...exerciseSets.map((set) => set.timestamp.valueOf()))
   );
 
   const [data, setData] = useState<any[]>([]);
 
   const [toggle, setToggle] = useState("all");
-
-  useEffect(() => {
-    unsortedSets.sort((a, b) => {
-      return a.timestamp.valueOf() - b.timestamp.valueOf();
-    });
-    setExerciseSets(unsortedSets);
-  }, [unsortedSets]);
 
   useEffect(() => {
     setFilteredSets({
