@@ -17,6 +17,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
+import { useExercises } from "../data/exercisesProvider";
 
 export default function EditSet({ navigation, route }: any) {
   const [reps, setReps] = React.useState("");
