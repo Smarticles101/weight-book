@@ -102,7 +102,7 @@ export function getExercises(callback: GetExercisesCallback) {
   database.transaction((tx) => {
     // select all exercises joined with most recent set timestamp
     tx.executeSql(
-      `select e.id, e.name, e.description, s.timestamp from exercises e left join (select exerciseId, MAX(timestamp) timestamp from sets group by exerciseId) s on e.id = s.exerciseId order by s.timestamp asc;`,
+      `select e.id, e.name, e.description, s.timestamp from exercises e left join (select exerciseId, MAX(timestamp) timestamp from sets group by exerciseId) s on e.id = s.exerciseId order by s.timestamp desc;`,
       [],
       (tx, results) => {
         const exercises: IdExercise[] = [];
