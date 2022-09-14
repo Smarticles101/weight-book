@@ -1,7 +1,14 @@
 import React, { useEffect, useMemo } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import {
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
-import { FAB, List, Paragraph } from "react-native-paper";
+import { FAB, List, Paragraph, Searchbar } from "react-native-paper";
 import { useExercises } from "../data/exercisesProvider";
 
 export default function Exercises({ navigation }: any) {
@@ -11,43 +18,63 @@ export default function Exercises({ navigation }: any) {
 
   const { loadExercises, exercises, useExercise } = useExercises();
 
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   useEffect(() => {
     loadExercises();
   }, []);
 
   return useMemo(
     () => (
-      <>
-        <FlatList
-          data={exercises}
-          renderItem={({ item }) => (
-            <List.Item
-              title={item.name}
-              description={
-                item.timestamp ? item.timestamp.toLocaleDateString() : ""
-              }
-              onPress={() => {
-                useExercise(item);
-                navigation.push("Exercise Log", {
-                  defaultName: item.name,
-                  defaultId: item.id,
-                });
-              }}
+      <KeyboardAvoidingView
+        behavior="padding"
+        enabled
+        keyboardVerticalOffset={100}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <>
+            <Searchbar
+              placeholder="Search"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
             />
-          )}
-          keyExtractor={(item) => item.id.toString()}
-        />
+            <FlatList
+              data={exercises.filter((e) =>
+                e.name.toLowerCase().includes(searchQuery.toLowerCase())
+              )}
+              renderItem={({ item }) => (
+                <List.Item
+                  title={item.name}
+                  description={
+                    item.timestamp ? item.timestamp.toLocaleDateString() : ""
+                  }
+                  onPress={() => {
+                    useExercise(item);
+                    navigation.push("Exercise Log", {
+                      defaultName: item.name,
+                      defaultId: item.id,
+                    });
+                  }}
+                />
+              )}
+              keyExtractor={(item) => item.id.toString()}
+            />
 
-        {exercises.length === 0 && (
-          <View style={{ flex: 1, alignItems: "center" }}>
-            <Paragraph>Click the plus to create your first exercise!</Paragraph>
-          </View>
-        )}
+            {exercises.length === 0 && (
+              <View style={{ flex: 1, alignItems: "center" }}>
+                <Paragraph>
+                  Click the plus to create your first exercise!
+                </Paragraph>
+              </View>
+            )}
 
-        <FAB style={styles.fab} icon="plus" onPress={showDialog} />
-      </>
+            <FAB style={styles.fab} icon="plus" onPress={showDialog} />
+          </>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     ),
-    [exercises]
+    [exercises, searchQuery]
   );
 }
 
@@ -55,8 +82,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    padding: 8,
   },
   fab: {
     position: "absolute",
