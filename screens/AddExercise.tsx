@@ -95,11 +95,13 @@ export default function AddSet({ navigation, route }: any) {
               <Dialog.Title>Add new exercise</Dialog.Title>
               <Dialog.Content style={styles.container}>
                 {/* @ts-ignore */}
-                <HelperText type="error" visible={exerciseNameEmptyErr}>
-                  Exercise name is required
-                </HelperText>
-                <HelperText type="error" visible={exerciseNameExistsErr}>
-                  An exercise with this name already exists
+                <HelperText
+                  type="error"
+                  visible={exerciseNameEmptyErr || exerciseNameExistsErr}
+                >
+                  {exerciseNameEmptyErr
+                    ? "Exercise name is required"
+                    : "An exercise with this name already exists"}
                 </HelperText>
                 <TextInput
                   label="Exercise name"
