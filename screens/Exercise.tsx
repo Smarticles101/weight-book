@@ -3,13 +3,13 @@ import { StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ExerciseLog from "./ExerciseLog";
 import ExerciseGraph from "./ExerciseGraph";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { Appbar, FAB } from "react-native-paper";
+import { useExercises } from "../data/exercisesProvider";
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function Exercise({ route, navigation }: any) {
-  const { activeExercise, exerciseSets } = useExerciseSets();
+  const { activeExercise, exerciseSets } = useExercises();
 
   const { defaultName, defaultId } = route.params;
 

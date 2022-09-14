@@ -2,11 +2,11 @@ import React, { useMemo } from "react";
 import { SectionList, StyleSheet, View } from "react-native";
 
 import { DataTable, FAB, List, Paragraph } from "react-native-paper";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
+import { useExercises } from "../data/exercisesProvider";
 import { IdExerciseSet } from "../data/types";
 
 export default function ExerciseLog({ route, navigation }: any) {
-  const { exerciseSets } = useExerciseSets();
+  const { exerciseSets } = useExercises();
 
   let exerciseSetsByDay: { day: String; data: IdExerciseSet[] }[] =
     useMemo(() => {

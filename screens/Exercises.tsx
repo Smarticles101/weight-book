@@ -2,16 +2,14 @@ import React, { useEffect, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import { FAB, List, Paragraph } from "react-native-paper";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { useExercises } from "../data/exercisesProvider";
 
 export default function Exercises({ navigation }: any) {
-  const { useExercise } = useExerciseSets();
   const showDialog = () => {
     navigation.push("Add Exercise");
   };
 
-  const { loadExercises, exercises } = useExercises();
+  const { loadExercises, exercises, useExercise } = useExercises();
 
   useEffect(() => {
     loadExercises();

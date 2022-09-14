@@ -16,7 +16,6 @@ import {
   Portal,
   TextInput,
 } from "react-native-paper";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
 import { useExercises } from "../data/exercisesProvider";
 
 export default function EditExercise({ navigation, route }: any) {
@@ -28,9 +27,8 @@ export default function EditExercise({ navigation, route }: any) {
 
   const { exerciseId, startExerciseName } = route.params;
 
-  const { editExercise, removeExercise } = useExercises();
-
-  const { activeExercise, useExercise } = useExerciseSets();
+  const { editExercise, removeExercise, activeExercise, useExercise } =
+    useExercises();
 
   useEffect(() => {
     setExerciseName(startExerciseName);

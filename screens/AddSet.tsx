@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { TextInput, Dialog, Appbar, HelperText } from "react-native-paper";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
+import { useExercises } from "../data/exercisesProvider";
 
 export default function AddSet({ navigation, route }: any) {
   const [reps, setReps] = React.useState("");
@@ -19,7 +19,7 @@ export default function AddSet({ navigation, route }: any) {
   const [weightErr, setWeightErr] = React.useState(false);
 
   const { startReps, startWeight, startNotes } = route.params;
-  const { addSet } = useExerciseSets();
+  const { addSet } = useExercises();
 
   useEffect(() => {
     setReps(startReps);

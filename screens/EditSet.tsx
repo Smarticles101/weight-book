@@ -17,7 +17,6 @@ import {
   TextInput,
 } from "react-native-paper";
 import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
 
 export default function EditSet({ navigation, route }: any) {
   const [reps, setReps] = React.useState("");
@@ -35,7 +34,7 @@ export default function EditSet({ navigation, route }: any) {
   const { setId, startReps, startWeight, startNotes, startTimestamp } =
     route.params;
 
-  const { editSet, removeSet } = useExerciseSets();
+  const { editSet, removeSet } = useExercises();
 
   useEffect(() => {
     setReps(startReps);

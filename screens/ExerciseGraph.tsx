@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useExerciseSets } from "../data/exerciseSetsProvider";
 import * as shape from "d3-shape";
 import * as scale from "d3-scale";
 import { Line } from "react-native-svg";
@@ -17,6 +16,7 @@ import { TextInput, View } from "react-native";
 import { Chip, Paragraph, ToggleButton, Text } from "react-native-paper";
 import CustomLineChart from "../components/chart/IndividuallyScaledLineChart";
 import { IdExerciseSet } from "../data/types";
+import { useExercises } from "../data/exercisesProvider";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
@@ -37,7 +37,7 @@ const repsColor = "hsla(30, 50%, 50%, 1)";
 const repsFill = "hsla(30, 50%, 50%, 0.2)";
 
 export default function ExerciseGraph({ route, navigation }: any) {
-  const exerciseSets = useExerciseSets().exerciseSets.reverse();
+  const exerciseSets = useExercises().exerciseSets.reverse();
   const panRef = React.useRef();
 
   const onLayout = useCallback((event) => {
