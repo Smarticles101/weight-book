@@ -1,3 +1,10 @@
+*.app/
+*.ipa
+*.abb
+*.apk
+*.tar.gz
+*.log
+
 node_modules/
 .expo/
 dist/

@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import analytics from "@react-native-firebase/analytics";
+import functions from "@react-native-firebase/functions";
 
 import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
@@ -14,7 +15,6 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 
 import ExercisesScreen from "./screens/Exercises";
-import ExerciseLog from "./screens/ExerciseLog";
 import AddSet from "./screens/AddSet";
 import EditSet from "./screens/EditSet";
 import AddExercise from "./screens/AddExercise";
@@ -44,6 +44,7 @@ const theme = {
 
 if (__DEV__) {
   analytics().setAnalyticsCollectionEnabled(false);
+  //functions().useEmulator('localhost', 5001);
   generateDevData();
 }
 
