@@ -1,14 +1,15 @@
 import React, { useLayoutEffect, useMemo } from "react";
+import { StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ExerciseLog from "./ExerciseLog";
 import ExerciseGraph from "./ExerciseGraph";
 import { useExerciseSets } from "../data/exerciseSetsProvider";
-import { Appbar } from "react-native-paper";
+import { Appbar, FAB } from "react-native-paper";
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function Exercise({ route, navigation }: any) {
-  const { activeExercise } = useExerciseSets();
+  const { activeExercise, exerciseSets } = useExerciseSets();
 
   const { defaultName, defaultId } = route.params;
 
@@ -43,10 +44,42 @@ export default function Exercise({ route, navigation }: any) {
     defaultName,
   ]);
 
+  const addSet = () => {
+    let reps, weight, notes;
+
+    if (exerciseSets.length > 0) {
+      // autofill most recent set for adding
+      const lastSet = exerciseSets[exerciseSets.length - 1];
+
+      reps = lastSet.reps.toString();
+      weight = lastSet.weight.toString();
+      notes = lastSet.notes;
+    }
+
+    navigation.navigate("Add Set", {
+      startReps: reps,
+      startWeight: weight,
+      startNotes: notes,
+    });
+  };
+
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Log" component={ExerciseLog} />
-      <Tab.Screen name="Analytics" component={ExerciseGraph} />
-    </Tab.Navigator>
+    <>
+      <Tab.Navigator>
+        <Tab.Screen name="Log" component={ExerciseLog} />
+        <Tab.Screen name="Analytics" component={ExerciseGraph} />
+      </Tab.Navigator>
+
+      <FAB style={styles.fab} icon="plus" onPress={addSet} />
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  fab: {
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+});

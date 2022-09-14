@@ -35,25 +35,6 @@ export default function ExerciseLog({ route, navigation }: any) {
       });
     }, [exerciseSets]);
 
-  const addSet = () => {
-    let reps, weight, notes;
-
-    if (exerciseSets.length > 0) {
-      // autofill most recent set for adding
-      const lastSet = exerciseSets[exerciseSets.length - 1];
-
-      reps = lastSet.reps.toString();
-      weight = lastSet.weight.toString();
-      notes = lastSet.notes;
-    }
-
-    navigation.navigate("Add Set", {
-      startReps: reps,
-      startWeight: weight,
-      startNotes: notes,
-    });
-  };
-
   const editSet = (editSet: IdExerciseSet) => {
     navigation.navigate("Edit Set", {
       setId: editSet.id,
@@ -114,8 +95,6 @@ export default function ExerciseLog({ route, navigation }: any) {
             <Paragraph>Click the plus to log your first set!</Paragraph>
           </View>
         )}
-
-        <FAB style={styles.fab} icon="plus" onPress={addSet} />
       </>
     ),
     [exerciseSetsByDay]
@@ -128,12 +107,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-  },
-  fab: {
-    position: "absolute",
-    margin: 16,
-    right: 0,
-    bottom: 0,
   },
   dataTable: {
     flex: 1,
