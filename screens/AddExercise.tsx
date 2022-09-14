@@ -21,9 +21,11 @@ import functions from "@react-native-firebase/functions";
 export default function AddSet({ navigation, route }: any) {
   const [exerciseName, setExerciseName] = React.useState("");
 
-  const [exerciseNameErr, setExerciseNameErr] = React.useState(false);
+  const [exerciseNameEmptyErr, setExerciseNameEmptyErr] = React.useState(false);
+  const [exerciseNameExistsErr, setExerciseNameExistsErr] =
+    React.useState(false);
 
-  const { addExercise } = useExercises();
+  const { addExercise, exercises } = useExercises();
 
   const [suggestedExercises, setSuggestedExercises] = React.useState<any[]>([]);
   const [filteredExercises, setFilteredExercises] = React.useState<any[]>([]);
@@ -59,11 +61,13 @@ export default function AddSet({ navigation, route }: any) {
 
   const submit = () => {
     if (exerciseName.length > 0) {
-      addExercise({ name: exerciseName, description: "" });
-      functions().httpsCallable("createExercise")({ exercise: exerciseName });
-      close();
+      if (!exerciseNameExistsErr) {
+        addExercise({ name: exerciseName, description: "" });
+        functions().httpsCallable("createExercise")({ exercise: exerciseName });
+        close();
+      }
     } else {
-      setExerciseNameErr(true);
+      setExerciseNameEmptyErr(true);
     }
   };
 
@@ -91,14 +95,24 @@ export default function AddSet({ navigation, route }: any) {
               <Dialog.Title>Add new exercise</Dialog.Title>
               <Dialog.Content style={styles.container}>
                 {/* @ts-ignore */}
-                <HelperText type="error" visible={exerciseNameErr}>
+                <HelperText type="error" visible={exerciseNameEmptyErr}>
                   Exercise name is required
+                </HelperText>
+                <HelperText type="error" visible={exerciseNameExistsErr}>
+                  An exercise with this name already exists
                 </HelperText>
                 <TextInput
                   label="Exercise name"
                   value={exerciseName}
                   onChangeText={(exercise) => {
-                    setExerciseNameErr(exercise.length === 0);
+                    setExerciseNameEmptyErr(exercise.length === 0);
+                    setExerciseNameExistsErr(
+                      exercises.some(
+                        (ex) =>
+                          ex.name.trim().toLowerCase() ===
+                          exercise.toLowerCase()
+                      )
+                    );
                     setExerciseName(exercise);
                     setFilteredExercises(
                       suggestedExercises.filter((e) =>
@@ -107,14 +121,19 @@ export default function AddSet({ navigation, route }: any) {
                     );
                   }}
                   style={styles.textBox}
-                  error={exerciseNameErr}
+                  error={exerciseNameEmptyErr}
                 />
                 {filteredExercises.map((e) => (
                   <List.Item
                     key={e.id}
                     title={capitalize(e.id)}
                     onPress={() => {
-                      setExerciseNameErr(e.id.length === 0);
+                      setExerciseNameEmptyErr(e.id.length === 0);
+                      setExerciseNameExistsErr(
+                        exercises.some(
+                          (ex) => ex.name.trim().toLowerCase() === e.id
+                        )
+                      );
                       setExerciseName(capitalize(e.id));
                       setFilteredExercises([]);
                     }}
