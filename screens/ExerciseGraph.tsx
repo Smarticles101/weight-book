@@ -37,7 +37,14 @@ const repsColor = "hsla(30, 50%, 50%, 1)";
 const repsFill = "hsla(30, 50%, 50%, 0.2)";
 
 export default function ExerciseGraph({ route, navigation }: any) {
-  const exerciseSets = useExercises().exerciseSets.reverse();
+  const { exerciseSets: sets } = useExercises();
+
+  const [exerciseSets, setExerciseSets] = useState<IdExerciseSet[]>(sets);
+
+  useEffect(() => {
+    setExerciseSets(exerciseSets.reverse());
+  }, [sets]);
+
   const panRef = React.useRef();
 
   const onLayout = useCallback((event) => {
