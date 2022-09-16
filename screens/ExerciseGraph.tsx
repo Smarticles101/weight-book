@@ -42,7 +42,7 @@ export default function ExerciseGraph({ route, navigation }: any) {
   const [exerciseSets, setExerciseSets] = useState<IdExerciseSet[]>(sets);
 
   useEffect(() => {
-    setExerciseSets(exerciseSets.reverse());
+    setExerciseSets(sets.reverse());
   }, [sets]);
 
   const panRef = React.useRef();
