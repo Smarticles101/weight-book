@@ -1,5 +1,14 @@
 {
-    "react-native": {
-	"google_analytics_automatic_screen_reporting_enabled": false
-    }
+  "react-native": {
+    "google_analytics_automatic_screen_reporting_enabled": false
+  },
+  "functions": {
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ],
+    "source": "functions"
+  }
 }
