@@ -268,3 +268,26 @@ export function deleteSet(setId: number, callback: Function) {
     );
   });
 }
+
+export function getExerciseHistory(callback: Function) {
+  database.transaction((tx) => {
+    // get all exercise sets joined with exercise name
+    tx.executeSql(
+      `select e.name, s.reps, s.weight, s.timestamp from exercises e join sets s on e.id = s.exerciseId order by julianday(s.timestamp) desc;`,
+      [],
+      (tx, results) => {
+        const exercises: any[] = [];
+        for (let i = 0; i < results.rows.length; i++) {
+          const row = results.rows.item(i);
+          exercises.push({
+            name: row.name,
+            reps: row.reps,
+            weight: row.weight,
+            timestamp: new Date(row.timestamp),
+          });
+        }
+        callback(exercises);
+      }
+    );
+  });
+}
