@@ -315,7 +315,7 @@ export function insertFolder({ name }: Folder, callback: InsertFolderCallback) {
   analytics().logEvent("insert_folder", { name });
   database.transaction((tx) => {
     tx.executeSql(
-      "insert into folders (name) values (?, ?)",
+      "insert into folders (name) values (?)",
       [name],
       (_, { insertId }) => {
         if (insertId) {

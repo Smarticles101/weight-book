@@ -52,25 +52,25 @@ export default function FoldersProvider({ children }: any) {
     []
   );
 
-  const loadFolders = async () => {
+  const loadFolders = () => {
     getFolders((folders) =>
       dispatchFolders({ type: "SET_FOLDERS", payload: folders })
     );
   };
 
-  const addFolder = async (folder: Folder) => {
+  const addFolder = (folder: Folder) => {
     insertFolder(folder, (newFolder) =>
       dispatchFolders({ type: "ADD_FOLDER", payload: newFolder })
     );
   };
 
-  const editFolder = async (folder: IdFolder) => {
+  const editFolder = (folder: IdFolder) => {
     updateFolder(folder, () =>
       dispatchFolders({ type: "EDIT_FOLDER", payload: folder })
     );
   };
 
-  const removeFolder = async (folderId: number) => {
+  const removeFolder = (folderId: number) => {
     deleteFolder(folderId, () =>
       dispatchFolders({ type: "REMOVE_FOLDER", payload: { id: folderId } })
     );

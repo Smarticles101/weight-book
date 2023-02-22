@@ -25,14 +25,6 @@ export default function AddSet({ navigation, route }: any) {
 
   const { addFolder, folders } = useFolders();
 
-  const capitalize = (s: string) => {
-    if (typeof s !== "string") return "";
-    return s
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
-
   const close = () => {
     navigation.goBack();
   };
@@ -40,6 +32,7 @@ export default function AddSet({ navigation, route }: any) {
   const submit = () => {
     if (folderName.length > 0) {
       if (!folderNameExistsErr) {
+        console.log(`submit ${folderName}`);
         addFolder({ name: folderName });
         close();
       }
