@@ -1,13 +1,23 @@
 import * as SQLite from "expo-sqlite";
 import {
+  DeleteExerciseFolderCallback,
+  DeleteFolderCallback,
   Exercise,
+  ExerciseFolder,
   ExerciseSet,
+  Folder,
   GetExercisesCallback,
+  GetFoldersCallback,
   GetSetsCallback,
   IdExercise,
+  IdExerciseFolder,
   IdExerciseSet,
+  IdFolder,
   InsertExerciseCallback,
+  InsertExerciseFolderCallback,
+  InsertFolderCallback,
   InsertSetCallback,
+  UpdateFolderCallback,
   UpdateSetCallback,
 } from "./types";
 
@@ -31,6 +41,14 @@ database.transaction((tx) => {
 
   tx.executeSql(
     "create table if not exists sets (id integer primary key not null, exerciseId integer not null, reps integer, weight integer, timestamp string, notes string, foreign key(exerciseId) references exercises(id))"
+  );
+
+  tx.executeSql(
+    "create table if not exists folders (id integer primary key not null, name string);"
+  );
+
+  tx.executeSql(
+    "create table if not exists exerciseFolders (id integer primary key not null, exerciseId integer not null, folderId integer not null, foreign key(exerciseId) references exercises(id), foreign key(folderId) references folders(id))"
   );
 
   tx.executeSql(
@@ -183,6 +201,7 @@ export function deleteExercise(id: number, callback: Function) {
   analytics().logEvent("delete_exercise");
   database.transaction(
     (tx) => {
+      tx.executeSql(`delete from exerciseFolders where exerciseId = ?;`, [id]);
       tx.executeSql(`delete from sets where exerciseId = ?;`, [id]);
       tx.executeSql(`delete from exercises where id = ?;`, [id]);
     },
@@ -264,6 +283,146 @@ export function deleteSet(setId: number, callback: Function) {
       [setId],
       (_, { rows }) => {
         callback(setId);
+      }
+    );
+  });
+}
+
+export function getExerciseHistory(callback: Function) {
+  database.transaction((tx) => {
+    // get all exercise sets joined with exercise name
+    tx.executeSql(
+      `select e.name, s.reps, s.weight, s.timestamp from exercises e join sets s on e.id = s.exerciseId order by julianday(s.timestamp) desc;`,
+      [],
+      (tx, results) => {
+        const exercises: any[] = [];
+        for (let i = 0; i < results.rows.length; i++) {
+          const row = results.rows.item(i);
+          exercises.push({
+            name: row.name,
+            reps: row.reps,
+            weight: row.weight,
+            timestamp: new Date(row.timestamp),
+          });
+        }
+        callback(exercises);
+      }
+    );
+  });
+}
+
+export function insertFolder({ name }: Folder, callback: InsertFolderCallback) {
+  analytics().logEvent("insert_folder", { name });
+  database.transaction((tx) => {
+    tx.executeSql(
+      "insert into folders (name) values (?)",
+      [name],
+      (_, { insertId }) => {
+        if (insertId) {
+          callback({ id: insertId, name });
+        }
+      }
+    );
+  });
+}
+
+export function updateFolder(
+  { id, name }: IdFolder,
+  callback: UpdateFolderCallback
+) {
+  analytics().logEvent("update_folder");
+  database.transaction((tx) => {
+    tx.executeSql(
+      "update folders set name = ? where id = ?",
+      [name, id],
+      (_, {}) => {
+        callback({ id, name });
+      }
+    );
+  });
+}
+
+export function deleteFolder(id: number, callback: DeleteFolderCallback) {
+  analytics().logEvent("delete_folder");
+  database.transaction(
+    (tx) => {
+      tx.executeSql(`delete from exerciseFolders where folderId = ?;`, [id]);
+      tx.executeSql(`delete from folders where id = ?;`, [id]);
+    },
+    (error) => {},
+    () => {
+      callback(id);
+    }
+  );
+}
+
+export function getFolders(callback: GetFoldersCallback) {
+  database.transaction((tx) => {
+    tx.executeSql(
+      "select * from folders order by name asc join exerciseFolders on folders.id = exerciseFolders.folderId",
+      [],
+      (_, { rows }) => {
+        let folders = rows._array.map((folder) => ({
+          id: folder.id,
+          name: folder.name,
+        }));
+
+        callback(folders);
+      }
+    );
+  });
+}
+
+export function getFolderExercises(
+  folderId: number,
+  callback: GetExercisesCallback
+) {
+  database.transaction((tx) => {
+    tx.executeSql(
+      "select * from exercises join exerciseFolders on exercises.id = exerciseFolders.exerciseId where exerciseFolders.folderId = ? order by name asc",
+      [folderId],
+      (_, { rows }) => {
+        let exercises = rows._array.map((exercise) => ({
+          id: exercise.id,
+          name: exercise.name,
+          description: exercise.description,
+        }));
+
+        callback(exercises);
+      }
+    );
+  });
+}
+
+export function insertExerciseFolder(
+  { folderId, exerciseId }: ExerciseFolder,
+  callback: InsertExerciseFolderCallback
+) {
+  analytics().logEvent("insert_exercise_folder");
+  database.transaction((tx) => {
+    tx.executeSql(
+      "insert into exerciseFolders (folderId, exerciseId) values (?, ?)",
+      [folderId, exerciseId],
+      (_, { insertId }) => {
+        if (insertId) {
+          callback({ id: insertId, folderId, exerciseId });
+        }
+      }
+    );
+  });
+}
+
+export function deleteExerciseFolder(
+  id: number,
+  callback: DeleteExerciseFolderCallback
+) {
+  analytics().logEvent("delete_exercise_folder");
+  database.transaction((tx) => {
+    tx.executeSql(
+      "delete from exerciseFolders where id = ?",
+      [id],
+      (_, { rows }) => {
+        callback(id);
       }
     );
   });
