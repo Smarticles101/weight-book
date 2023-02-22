@@ -29,3 +29,30 @@ export type GetSetsCallback = (sets: IdExerciseSet[]) => void;
 export type InsertSetCallback = (set: IdExerciseSet) => void;
 export type UpdateSetCallback = (set: IdExerciseSet) => void;
 export type DeleteSetCallback = (setId: number) => void;
+
+export type Folder = {
+  name: string;
+};
+
+export type IdFolder = Folder & {
+  id: number;
+};
+
+export type GetFoldersCallback = (folders: IdFolder[]) => void;
+export type InsertFolderCallback = (folder: IdFolder) => void;
+export type UpdateFolderCallback = (folder: IdFolder) => void;
+export type DeleteFolderCallback = (folderId: number) => void;
+
+export type ExerciseFolder = {
+  exerciseId: number;
+  folderId: number;
+};
+
+export type IdExerciseFolder = ExerciseFolder & {
+  id: number;
+};
+
+export type DeleteExerciseFolderCallback = (id: number) => void;
+export type InsertExerciseFolderCallback = (
+  exerciseFolder: IdExerciseFolder
+) => void;
